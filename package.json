@@ -1,0 +1,87 @@
+{
+  "name": "nestjs-config-extended",
+  "version": "0.1.0",
+  "description": "Extended Configuration Module for Nest to load environment variables package",
+  "author": "Pedro Sodré",
+  "license": "MIT",
+  "url": "https://github.com/pedrosodre/nestjs-config-extended",
+  "scripts": {
+    "build": "rimraf -rf dist && tsc -p tsconfig.json",
+    "lint": "tslint -c tslint.json 'lib/**/*.ts'",
+    "format": "prettier --write \"lib/**/*.ts\" \"tests/**/*.ts\"",
+    "prepublish:npm": "npm run build",
+    "publish:npm": "npm publish --access public",
+    "prepublish:next": "npm run build",
+    "publish:next": "npm publish --access public --tag next",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --runInBand --coverage",
+    "prerelease": "npm run build",
+    "release": "release-it"
+  },
+  "dependencies": {
+    "dotenv": "8.2.0",
+    "dotenv-expand": "5.1.0",
+    "lodash.get": "4.4.2",
+    "lodash.has": "4.5.2",
+    "lodash.isfunction": "^3.0.9",
+    "lodash.set": "4.3.2",
+    "node-cron": "^2.0.3",
+    "uuid": "8.3.2"
+  },
+  "devDependencies": {
+    "@nestjs/common": "7.6.5",
+    "@nestjs/core": "7.6.5",
+    "@nestjs/platform-express": "^7.6.5",
+    "@nestjs/testing": "^7.6.5",
+    "@types/jest": "^26.0.20",
+    "@types/lodash.get": "4.4.6",
+    "@types/lodash.has": "4.5.6",
+    "@types/lodash.isfunction": "^3.0.6",
+    "@types/lodash.set": "4.3.6",
+    "@types/node": "^7.10.8",
+    "@types/node-cron": "^2.0.3",
+    "@types/tz-offset": "0.0.0",
+    "@types/uuid": "8.3.0",
+    "husky": "4.3.7",
+    "jest": "^26.6.3",
+    "prettier": "2.2.1",
+    "reflect-metadata": "0.1.13",
+    "release-it": "14.2.2",
+    "rimraf": "3.0.2",
+    "rxjs": "6.6.3",
+    "ts-jest": "26.4.4",
+    "tslint": "^6.1.3",
+    "typescript": "4.1.3"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^6.10.0 || ^7.0.0",
+    "reflect-metadata": "^0.1.12",
+    "rxjs": "^6.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "./lib/**/*.ts"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": ".",
+    "testEnvironment": "node",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pedrosodre/nestjs-config-extended"
+  }
+}

@@ -17,7 +17,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --runInBand --coverage",
     "prerelease": "npm run build",
-    "release": "release-it"
+    "release": "release-it --npm.skipChecks"
   },
   "dependencies": {
     "dotenv": "8.2.0",

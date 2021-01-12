@@ -25,7 +25,7 @@ jobs:
     - run: npm install -g sonarqube-scanner
     - run: npm run lint
     - run: |
-        npm run test:cov
+        npm run test:coverage
         sonar-scanner -Dsonar.login=${{ secrets.SONAR_TOKEN }}
     env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

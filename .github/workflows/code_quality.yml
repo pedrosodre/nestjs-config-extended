@@ -29,4 +29,5 @@ jobs:
         sonar-scanner -Dsonar.login=${{ secrets.SONAR_TOKEN }}
     env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

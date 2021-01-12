@@ -5,7 +5,6 @@ import {
 	ForwardReference,
 	Abstract,
 } from '@nestjs/common';
-import { ExtendedConfigModule } from '../extended-config.module';
 import { ConfigLoaderStrategy } from './config-loader-strategy.interface';
 
 export interface ExtendedConfigModuleOptions {

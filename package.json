@@ -17,7 +17,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --runInBand --coverage",
     "prerelease": "npm run build",
-    "release": "release-it --ci --npm.skipChecks"
+    "release": "npm publish --access=public"
   },
   "dependencies": {
     "dotenv": "8.2.0",
@@ -47,7 +47,6 @@
     "jest": "^26.6.3",
     "prettier": "2.2.1",
     "reflect-metadata": "0.1.13",
-    "release-it": "14.2.2",
     "rimraf": "3.0.2",
     "rxjs": "6.6.3",
     "ts-jest": "26.4.4",

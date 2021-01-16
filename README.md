@@ -107,10 +107,10 @@ constructor(private extendedConfigService: ExtendedConfigModule) {}
 Once it's injected, you already can use the following service methods to work with environment variables.
 
 ```typescript
-// force load process, if didn't started yet
+// force load process if didn't started yet
 await this.extendedConfigService.load();
 
-// force load process, if didn't started yet or wait a in progress load to finish
+// force load process if didn't started yet or wait an in progress load to finish
 await this.extendedConfigService.load(true);
 
 // get an environment variable

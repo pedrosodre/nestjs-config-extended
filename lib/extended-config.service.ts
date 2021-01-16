@@ -19,6 +19,8 @@ import {
 	ALL_STRATEGIES,
 	RELOADING_VARIABLES_FROM_STRATEGY_BY_SCHEDULER,
 	NOT_LOADED_STRATEGY_DISABLED,
+	FIRST_LOAD_REQUESTED,
+	LOAD_REQUEST_IGNORED,
 } from './config.constants';
 import {
 	ConfigLoaderStrategy,
@@ -43,6 +45,7 @@ import cron from 'node-cron';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>> {
+	private loaded: boolean = false;
 	private readonly cache: Record<string, any> = {};
 
 	constructor(
@@ -53,8 +56,23 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		private readonly logger: Logger,
 	) { }
 
-	async onModuleInit(): Promise<void> {
-		await this.loadVariables();
+	private get isLoaded(): boolean {
+		return this.loaded;
+	}
+
+	private set isLoaded(isLoaded: boolean) {
+		this.loaded = isLoaded;
+	}
+
+	async load(): Promise<void> {
+		if (!this.isLoaded) {
+			this.debug(FIRST_LOAD_REQUESTED, ALL_STRATEGIES);
+
+			await this.loadVariables();
+			this.isLoaded = true;
+		} else {
+			this.debug(LOAD_REQUEST_IGNORED, ALL_STRATEGIES);
+		}
 	}
 
 	get<T = any>(propertyPath: keyof K, defaultValue?: T): T | undefined {

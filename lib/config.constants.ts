@@ -8,6 +8,10 @@ export const EXTENDED_CONFIG_OPTIONS = 'EXTENDED_CONFIG_OPTIONS';
  * Messages and useful strings
  */
 export const NOT_IDENTIFIED = 'Not identified';
+export const FIRST_LOAD_REQUESTED =
+	'Starting variables loading process';
+export const LOAD_REQUEST_IGNORED =
+	'Load request was ignored since variables already was loaded';
 export const INVALID_VARIABLES =
 	'Variables was not validated by strategy\'s validator.';
 export const STARTING_STRATEGY = 'Starting strategy';

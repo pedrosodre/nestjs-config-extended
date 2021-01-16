@@ -19,6 +19,9 @@ import {
 	ALL_STRATEGIES,
 	RELOADING_VARIABLES_FROM_STRATEGY_BY_SCHEDULER,
 	NOT_LOADED_STRATEGY_DISABLED,
+	FIRST_LOAD_REQUESTED,
+	LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED,
+	LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS,
 } from './config.constants';
 import {
 	ConfigLoaderStrategy,
@@ -43,6 +46,8 @@ import cron from 'node-cron';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>> {
+	private loaded: boolean = false;
+	private loading: boolean = false;
 	private readonly cache: Record<string, any> = {};
 
 	constructor(
@@ -51,12 +56,49 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		@Inject(CRON_SCHEDULER)
 		private readonly scheduler: typeof cron,
 		private readonly logger: Logger,
-	) { }
+	) {}
 
-	async onModuleInit(): Promise<void> {
-		await this.loadVariables();
+	private get isLoaded(): boolean {
+		return this.loaded;
 	}
 
+	private set isLoaded(isLoaded: boolean) {
+		this.loaded = isLoaded;
+	}
+
+	private get isLoading(): boolean {
+		return this.loading;
+	}
+
+	private set isLoading(isLoading: boolean) {
+		this.loading = isLoading;
+	}
+
+	/**
+	 * Method that initiates the first loading of the variables.
+	 * This method can be called multiple times, but variables will be loaded only on first call.
+	 */
+	async load(): Promise<void> {
+		if (!this.isLoaded && !this.isLoading) {
+			this.debug(FIRST_LOAD_REQUESTED, ALL_STRATEGIES);
+
+			this.isLoading = true;
+			await this.loadVariables();
+			this.isLoading = false;
+			this.isLoaded = true;
+		} else if (this.isLoaded) {
+			this.debug(LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED, ALL_STRATEGIES);
+		} else if (this.isLoading) {
+			this.debug(LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS, ALL_STRATEGIES);
+		}
+	}
+
+	/**
+	 * Method that retrieve an environment variable given a key.
+	 *
+	 * @param propertyPath property path (key) associated with the desired variable.
+	 * @param defaultValue optional default variable to be returned if the service does not have the requested variable.
+	 */
 	get<T = any>(propertyPath: keyof K, defaultValue?: T): T | undefined {
 		if (this.isCacheEnabled) {
 			const cachedValue = this.getFromCache(propertyPath);
@@ -89,6 +131,13 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		return hasOn(process.env, propertyPath);
 	}
 
+	/**
+	 * Method that verify if an environment variable exists given a key.
+	 *
+	 * @param propertyPath property path (key) associated with the desired variable.
+	 *
+	 * @returns a boolean that indicates the existence of an environment variable.
+	 */
 	has(propertyPath: keyof K): boolean {
 		if (this.isCacheEnabled) {
 			return this.hasOnCache(propertyPath);
@@ -146,6 +195,11 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		}
 	}
 
+	/**
+	 * Method that reloads environment variables on strategies that allows reload.
+	 *
+	 * @param strategyIdentifier optional strategy's identifier to allow reload environment variables from a single strategy.
+	 */
 	async reload(strategyIdentifier?: string | Symbol): Promise<void> {
 		if (strategyIdentifier) {
 			const strategy = this.options.strategies?.filter(

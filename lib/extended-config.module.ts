@@ -21,6 +21,8 @@ import * as cron from 'node-cron';
 	],
 })
 export class ExtendedConfigModule {
+	constructor(private extendedConfigService: ExtendedConfigService) {}
+
 	/**
 	 * Loads environment variables based on strategies.
 	 * If no strategy is passed and cache is disabled, current process.env will be used.
@@ -72,5 +74,9 @@ export class ExtendedConfigModule {
 		}
 
 		return [];
+	}
+
+	protected async onModuleInit() {
+		await this.extendedConfigService.load();
 	}
 }

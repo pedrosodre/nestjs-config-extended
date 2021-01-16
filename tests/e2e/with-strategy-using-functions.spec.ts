@@ -146,7 +146,7 @@ describe('With strategy using functions', () => {
 
 		service.load(); // Do the real load
 
-		await service.load(); // Should not be called since another loading is in progress
+		await service.load(true); // Should not be called since another loading is in progress
 
 		await app.init(); // Should not be called from onModuleInit since it already was loaded
 

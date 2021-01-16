@@ -77,8 +77,11 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	/**
 	 * Method that initiates the first loading of the variables.
 	 * This method can be called multiple times, but variables will be loaded only on first call.
+	 *
+	 * @param ensureLoad optional boolean that forces method to resolve the promise only after finishing the loading.
+	 * If "false" and service already have a loading in progress, this method will not wait for it.
 	 */
-	async load(): Promise<void> {
+	async load(ensureLoad: boolean = false): Promise<void> {
 		if (!this.isLoaded && !this.isLoading) {
 			this.debug(FIRST_LOAD_REQUESTED, ALL_STRATEGIES);
 
@@ -86,10 +89,18 @@ export class ExtendedConfigService<K = Record<string, any>> {
 			await this.loadVariables();
 			this.isLoading = false;
 			this.isLoaded = true;
-		} else if (this.isLoaded) {
-			this.debug(LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED, ALL_STRATEGIES);
-		} else if (this.isLoading) {
-			this.debug(LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS, ALL_STRATEGIES);
+		} else {
+			if (this.isLoaded) {
+				this.debug(LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED, ALL_STRATEGIES);
+			} else if (this.isLoading) {
+				this.debug(LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS, ALL_STRATEGIES);
+			}
+
+			if (ensureLoad) {
+				while (!this.isLoaded) {
+					await new Promise(r => setTimeout(r, 100));
+				}
+			}
 		}
 	}
 

@@ -125,6 +125,61 @@ describe('With strategy using functions', () => {
 		}
 	});
 
+	it(`should load from strategy only one time when call load() method multiple times due loading in progress`, async () => {
+		const loader = jest.fn();
+
+		const moduleRef = await Test.createTestingModule({
+			imports: [
+				AppModule.withStrategy([
+					{
+						loader: loader.mockImplementation(async () => {
+							await new Promise(r => setTimeout(r, 2000));
+							return variables;
+						}),
+					},
+				]),
+			],
+		}).compile();
+
+		app = moduleRef.createNestApplication();
+		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
+
+		service.load(); // Do the real load
+
+		await service.load(); // Should not be called since another loading is in progress
+
+		await app.init(); // Should not be called from onModuleInit since it already was loaded
+
+		expect(loader).toHaveBeenCalledTimes(1);
+	});
+
+	it(`should load from strategy only one time when call load() method multiple times due already loaded`, async () => {
+		const loader = jest.fn();
+
+		const moduleRef = await Test.createTestingModule({
+			imports: [
+				AppModule.withStrategy([
+					{
+						loader: loader.mockImplementation(async () => {
+							await new Promise(r => setTimeout(r, 2000));
+							return variables;
+						}),
+					},
+				]),
+			],
+		}).compile();
+
+		app = moduleRef.createNestApplication();
+		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
+		await service.load(); // Do the real load
+
+		await app.init(); // Should not be called from onModuleInit since it already was loaded
+
+		await service.load(); // Should not be called since it already was loaded
+
+		expect(loader).toHaveBeenCalledTimes(1);
+	});
+
 	it(`should load variables again after reload() from strategy using functions`, async () => {
 		const loader = jest.fn();
 

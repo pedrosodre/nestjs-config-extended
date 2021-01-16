@@ -37,7 +37,7 @@ describe('With strategy using functions', () => {
 			expect(service.get(key)).toBe(variables[key]);
 			expect(process.env[key]).not.toBe(variables[key]);
 		}
-    });
+	});
 
 	it(`should load, validate and transform variables from strategy using functions with registerAs`, async () => {
 		const loader = jest.fn();
@@ -48,7 +48,7 @@ describe('With strategy using functions', () => {
 			imports: [
 				AppModule.withStrategy([
 					{
-                        registerAs: 'key',
+						registerAs: 'key',
 						identifier: 'LOADER_FUNCTION',
 						loader: loader.mockResolvedValue(variables),
 						validator: validator.mockResolvedValue(true),
@@ -66,7 +66,7 @@ describe('With strategy using functions', () => {
 		expect(validator).toHaveBeenCalledTimes(1);
 
 		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
-        expect(service.get('key')).toBe(variables);
+		expect(service.get('key')).toBe(variables);
 	});
 
 	it(`should load, validate and transform variables from strategy using functions without identifier`, async () => {
@@ -107,8 +107,8 @@ describe('With strategy using functions', () => {
 			imports: [
 				AppModule.withStrategy([
 					{
-                        disable: true,
-                        loader: loader.mockResolvedValue(variables),
+						disable: true,
+						loader: loader.mockResolvedValue(variables),
 					},
 				]),
 			],
@@ -132,9 +132,9 @@ describe('With strategy using functions', () => {
 			imports: [
 				AppModule.withStrategy([
 					{
-                        reloadable: true,
-                        identifier: 'LOADER_FUNCTION',
-                        loader: loader.mockResolvedValue(variables),
+						reloadable: true,
+						identifier: 'LOADER_FUNCTION',
+						loader: loader.mockResolvedValue(variables),
 					},
 				]),
 			],
@@ -143,8 +143,8 @@ describe('With strategy using functions', () => {
 		app = moduleRef.createNestApplication();
 		await app.init();
 
-        const service = app.get<ExtendedConfigService>(ExtendedConfigService);
-        await service.reload('LOADER_FUNCTION');
+		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
+		await service.reload('LOADER_FUNCTION');
 
 		expect(loader).toHaveBeenCalledTimes(2);
 
@@ -160,9 +160,9 @@ describe('With strategy using functions', () => {
 			imports: [
 				AppModule.withStrategy([
 					{
-                        reloadable: true,
-                        identifier: 'LOADER_FUNCTION',
-                        loader: loader.mockResolvedValue(variables),
+						reloadable: true,
+						identifier: 'LOADER_FUNCTION',
+						loader: loader.mockResolvedValue(variables),
 					},
 				]),
 			],
@@ -171,8 +171,8 @@ describe('With strategy using functions', () => {
 		app = moduleRef.createNestApplication();
 		await app.init();
 
-        const service = app.get<ExtendedConfigService>(ExtendedConfigService);
-        await service.reload('WRONG_LOADER_FUNCTION');
+		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
+		await service.reload('WRONG_LOADER_FUNCTION');
 
 		expect(loader).toHaveBeenCalledTimes(1);
 
@@ -188,8 +188,8 @@ describe('With strategy using functions', () => {
 			imports: [
 				AppModule.withStrategy([
 					{
-                        reloadable: true,
-                        loader: loader.mockResolvedValue(variables),
+						reloadable: true,
+						loader: loader.mockResolvedValue(variables),
 					},
 				]),
 			],
@@ -198,8 +198,8 @@ describe('With strategy using functions', () => {
 		app = moduleRef.createNestApplication();
 		await app.init();
 
-        const service = app.get<ExtendedConfigService>(ExtendedConfigService);
-        await service.reload();
+		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
+		await service.reload();
 
 		expect(loader).toHaveBeenCalledTimes(2);
 

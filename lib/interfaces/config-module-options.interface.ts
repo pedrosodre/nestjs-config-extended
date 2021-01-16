@@ -47,7 +47,10 @@ export interface ExtendedConfigModuleAsyncOptions
 	isGlobal?: boolean;
 
 	imports?: (
-		Type<any> | DynamicModule | Promise<DynamicModule> | ForwardReference
+		| Type<any>
+		| DynamicModule
+		| Promise<DynamicModule>
+		| ForwardReference
 	)[];
 	useFactory?: (
 		...args: any[]

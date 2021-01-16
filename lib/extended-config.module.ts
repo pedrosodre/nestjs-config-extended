@@ -21,7 +21,7 @@ import * as cron from 'node-cron';
 	],
 })
 export class ExtendedConfigModule {
-	constructor(private extendedConfigService: ExtendedConfigService) { }
+	constructor(private extendedConfigService: ExtendedConfigService) {}
 
 	/**
 	 * Loads environment variables based on strategies.

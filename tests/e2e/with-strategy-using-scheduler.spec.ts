@@ -14,12 +14,12 @@ jest.mock('node-cron', () => {
 				},
 			),
 		validate: jest.fn().mockImplementation((schedule: string) => {
-            if (schedule === 'invalid') {
-                return false;
-            }
+			if (schedule === 'invalid') {
+				return false;
+			}
 
-            return true;
-        }),
+			return true;
+		}),
 	};
 });
 

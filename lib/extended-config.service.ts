@@ -175,14 +175,14 @@ export class ExtendedConfigService<K = Record<string, any>> {
 
 	private async loadVariables(onlyReloadable: boolean = false): Promise<void> {
 		for await (const strategy of this.options.strategies || []) {
-			const { reloadable, identifier, schedule, scheduleTimezone } = strategy;
+			const { reloadable, identifier, schedule, scheduleTimezone, disable } = strategy;
 
 			if (!onlyReloadable || reloadable) {
 				this.debug(STARTING_STRATEGY, identifier);
 
 				await this.loadVariablesByStrategy(strategy);
 
-				if (!onlyReloadable && schedule && reloadable) {
+				if (!disable && !onlyReloadable && schedule && reloadable) {
 					if (!this.scheduler.validate(schedule)) {
 						throw new InvalidScheduleException(identifier);
 					}

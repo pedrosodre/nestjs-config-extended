@@ -24,7 +24,7 @@ export interface ExtendedConfigModuleOptions {
 	cache?: boolean;
 
 	/**
-	 * If "true", module will log some internal process information.
+	 * If "true", service will log some internal process information.
 	 */
 	debug?: boolean;
 }
@@ -36,6 +36,13 @@ export interface ExtendedConfigModuleSyncOptions
 	 * See: https://docs.nestjs.com/modules#global-modules
 	 */
 	isGlobal?: boolean;
+
+	/**
+	 * If "true", variables load will be done by the module and injected on service.
+	 * This option is required if you need to inject the service on a custom provider and retrieve a variable before application is totally ready.
+	 * This option isn't compatible with module's forRootAsync() method.
+	 */
+	preload?: boolean;
 }
 
 export interface ExtendedConfigModuleAsyncOptions

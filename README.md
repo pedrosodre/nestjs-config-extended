@@ -71,6 +71,7 @@ To customize module's configuration, you can setup few options by importing it u
 | `cache` | `true` | `false` | `boolean` | If `false`, values will be stored directly in process.env object. <br> If `true`, values will be stored only in the memory. |
 | `debug` | `false` | `false` | `boolean` | If `true`, module will log some internal process information. |
 | `isGlobal` | `false` | `false` | `boolean` | If `true`, registers `ExtendedConfigModule` as a global module. |
+| `preload` | `false` | `false` | `boolean` | If `true`, variables load will be done by the module and injected on service. This option is required if you need to inject the service on a custom provider and retrieve a variable before application is totally ready. |
 
 ### Strategies
 
@@ -145,6 +146,7 @@ import {
       cache: true,
       debug: false,
       isGlobal: true,
+      preload: true,
       strategies: [
         {
           identifier: 'DOT_ENV_STRATEGY',

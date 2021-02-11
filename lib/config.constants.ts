@@ -3,11 +3,14 @@
  */
 export const CRON_SCHEDULER = 'CRON_SCHEDULER';
 export const EXTENDED_CONFIG_OPTIONS = 'EXTENDED_CONFIG_OPTIONS';
+export const PRE_LOADED_VALUES = 'PRE_LOADED_VALUES';
 
 /**
  * Messages and useful strings
  */
 export const NOT_IDENTIFIED = 'Not identified';
+export const VARIABLES_PRELOADED_BY_MODULE =
+	'Variables was preloaded by module from enabled strategies';
 export const FIRST_LOAD_REQUESTED = 'Starting variables loading process';
 export const LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED =
 	'Load request was ignored since variables already was loaded';

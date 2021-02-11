@@ -39,6 +39,43 @@ describe('With strategy using functions', () => {
 		}
 	});
 
+	it(`should load, validate and transform variables from strategy using functions with preload option`, async () => {
+		const loader = jest.fn();
+		const transformer = jest.fn();
+		const validator = jest.fn();
+
+		const moduleRef = await Test.createTestingModule({
+			imports: [
+				AppModule.withStrategy(
+					[
+						{
+							identifier: 'LOADER_FUNCTION',
+							loader: loader.mockResolvedValue(variables),
+							validator: validator.mockResolvedValue(true),
+							transformer: transformer.mockResolvedValue(variables),
+						},
+					],
+					{
+						preload: true,
+					},
+				),
+			],
+		}).compile();
+
+		app = moduleRef.createNestApplication();
+		await app.init();
+
+		expect(loader).toHaveBeenCalledTimes(1);
+		expect(transformer).toHaveBeenCalledTimes(1);
+		expect(validator).toHaveBeenCalledTimes(1);
+
+		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
+		for (const key of Object.keys(variables)) {
+			expect(service.get(key)).toBe(variables[key]);
+			expect(process.env[key]).not.toBe(variables[key]);
+		}
+	});
+
 	it(`should load, validate and transform variables from strategy using functions with registerAs`, async () => {
 		const loader = jest.fn();
 		const transformer = jest.fn();

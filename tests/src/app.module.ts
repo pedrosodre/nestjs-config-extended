@@ -2,6 +2,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import {
 	ConfigLoaderStrategy,
 	ExtendedConfigModule,
+	ExtendedConfigModuleSyncOptions,
 	processEnvLoader,
 } from '../../lib';
 import { SampleStrategyModule } from './sample-strategy.module';
@@ -49,14 +50,14 @@ export class AppModule {
 		};
 	}
 
-	static withStrategy(strategies: ConfigLoaderStrategy[]): DynamicModule {
+	static withStrategy(
+		strategies: ConfigLoaderStrategy[],
+		options?: ExtendedConfigModuleSyncOptions,
+	): DynamicModule {
+		const moduleOptions = options ? { strategies, ...options } : { strategies };
 		return {
 			module: AppModule,
-			imports: [
-				ExtendedConfigModule.forRoot({
-					strategies,
-				}),
-			],
+			imports: [ExtendedConfigModule.forRoot(moduleOptions)],
 		};
 	}
 

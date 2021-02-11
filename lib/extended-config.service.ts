@@ -7,12 +7,9 @@ import setOn from 'lodash.set';
 import {
 	EXTENDED_CONFIG_OPTIONS,
 	CRON_SCHEDULER,
-	INVALID_VARIABLES,
+	PRE_LOADED_VALUES,
 	NOT_IDENTIFIED,
 	STARTING_STRATEGY,
-	LOADING_VARIABLES_FROM_STRATEGY,
-	VALIDATING_VARIABLES_FROM_STRATEGY,
-	TRANSFORMING_VARIABLES_FROM_STRATEGY,
 	ASSIGNING_VARIABLES_TO_PROCESS_ENV,
 	ASSIGNING_VARIABLES_TO_CACHE,
 	STARTING_RELOAD,
@@ -22,27 +19,15 @@ import {
 	FIRST_LOAD_REQUESTED,
 	LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED,
 	LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS,
+	VARIABLES_PRELOADED_BY_MODULE,
 } from './config.constants';
 import {
 	ConfigLoaderStrategy,
 	ExtendedConfigModuleOptions,
-	LoaderClass,
-	LoaderMethod,
-	TransformerClass,
-	TransformerMethod,
-	ValidatorClass,
-	ValidatorMethod,
 } from './interfaces';
-import {
-	InvalidLoaderException,
-	InvalidScheduleException,
-	InvalidTransformerException,
-	InvalidValidatorException,
-	LoadingException,
-	TransformationException,
-	ValidationException,
-} from './exceptions';
+import { InvalidScheduleException } from './exceptions';
 import cron from 'node-cron';
+import { retrieveVariablesByStrategy } from './util/loader.util';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>> {
@@ -56,7 +41,17 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		@Inject(CRON_SCHEDULER)
 		private readonly scheduler: typeof cron,
 		private readonly logger: Logger,
-	) {}
+		@Inject(PRE_LOADED_VALUES) preLoadedValues?: Record<string, any>,
+	) {
+		if (preLoadedValues) {
+			this.debug(VARIABLES_PRELOADED_BY_MODULE, ALL_STRATEGIES);
+
+			for (const key of Object.keys(preLoadedValues)) {
+				this.set(key as any, preLoadedValues[key]);
+			}
+			this.isLoaded = true;
+		}
+	}
 
 	private get isLoaded(): boolean {
 		return this.loaded;
@@ -169,13 +164,15 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		return this.options.cache === false ? this.options.cache : true;
 	}
 
-	private get isDebugEnabled(): boolean {
-		return this.options.debug || false;
-	}
-
 	private async loadVariables(onlyReloadable: boolean = false): Promise<void> {
 		for await (const strategy of this.options.strategies || []) {
-			const { reloadable, identifier, schedule, scheduleTimezone, disable } = strategy;
+			const {
+				reloadable,
+				identifier,
+				schedule,
+				scheduleTimezone,
+				disable,
+			} = strategy;
 
 			if (!onlyReloadable || reloadable) {
 				this.debug(STARTING_STRATEGY, identifier);
@@ -247,95 +244,18 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	private async retrieveVariables(
 		strategy: ConfigLoaderStrategy,
 	): Promise<Record<string, any>> {
-		const { loader, identifier, options } = strategy;
-		let loadedVariables: Record<string, any> = {};
-
-		try {
-			this.debug(LOADING_VARIABLES_FROM_STRATEGY, identifier);
-
-			if (isFunction(loader)) {
-				loadedVariables = await (loader as LoaderMethod)(options);
-			} else if (isFunction(loader?.load)) {
-				loadedVariables = await (loader as LoaderClass).load(options);
-			} else {
-				throw new InvalidLoaderException(identifier);
-			}
-		} catch (err) {
-			if (err instanceof InvalidLoaderException) {
-				throw err;
-			}
-
-			throw new LoadingException(err, identifier);
-		}
-
-		await this.validateVariables(strategy, loadedVariables);
-
-		loadedVariables = await this.transformVariables(strategy, loadedVariables);
-
-		return loadedVariables;
-	}
-
-	private async transformVariables(
-		strategy: ConfigLoaderStrategy,
-		variables: Record<string, any>,
-	): Promise<Record<string, any>> {
-		const { transformer, identifier } = strategy;
-
-		if (transformer) {
-			this.debug(TRANSFORMING_VARIABLES_FROM_STRATEGY, identifier);
-
-			try {
-				if (isFunction(transformer)) {
-					variables = await (transformer as TransformerMethod)(variables);
-				} else if (isFunction(transformer?.transform)) {
-					variables = await (transformer as TransformerClass).transform(
-						variables,
-					);
-				} else {
-					throw new InvalidTransformerException(identifier);
-				}
-			} catch (err) {
-				if (err instanceof InvalidTransformerException) {
-					throw err;
-				}
-
-				throw new TransformationException(err, identifier);
-			}
-		}
-
-		return variables;
-	}
-
-	private async validateVariables(
-		strategy: ConfigLoaderStrategy,
-		variables: Record<string, any>,
-	): Promise<void> {
-		const { validator, identifier } = strategy;
-		let isValid = true;
-
-		try {
-			if (validator) {
-				this.debug(VALIDATING_VARIABLES_FROM_STRATEGY, identifier);
-
-				if (isFunction(validator)) {
-					isValid = await (validator as ValidatorMethod)(variables);
-				} else if (isFunction(validator?.validate)) {
-					isValid = await (validator as ValidatorClass).validate(variables);
-				} else {
-					throw new InvalidValidatorException(identifier);
-				}
-			}
-		} catch (err) {
-			if (err instanceof InvalidValidatorException) {
-				throw err;
-			}
-
-			throw new ValidationException(err, identifier);
-		}
-
-		if (!isValid) {
-			throw new ValidationException(INVALID_VARIABLES, identifier);
-		}
+		return retrieveVariablesByStrategy(
+			strategy,
+			this.options?.debug
+				? (message: string, identifier?: string | Symbol) => {
+						this.logger.debug(
+							`[Extended Config Module] ${
+								identifier || NOT_IDENTIFIED
+							}: ${message}`,
+						);
+				  }
+				: undefined,
+		);
 	}
 
 	private assignVariables(
@@ -360,7 +280,7 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	}
 
 	private debug(message: string, identifier?: string | Symbol): void {
-		if (this.isDebugEnabled) {
+		if (this.options?.debug) {
 			this.logger.debug(
 				`[Extended Config Module] ${identifier || NOT_IDENTIFIED}: ${message}`,
 			);

@@ -1,11 +1,17 @@
 import { DynamicModule, Module, Provider, Logger } from '@nestjs/common';
-import { CRON_SCHEDULER, EXTENDED_CONFIG_OPTIONS } from './config.constants';
+import {
+	CRON_SCHEDULER,
+	EXTENDED_CONFIG_OPTIONS,
+	PRE_LOADED_VALUES,
+} from './config.constants';
 import { ExtendedConfigService } from './extended-config.service';
 import {
 	ExtendedConfigModuleSyncOptions,
 	ExtendedConfigModuleAsyncOptions,
 } from './interfaces';
 import * as cron from 'node-cron';
+import { retrieveVariablesByStrategy } from './util/loader.util';
+import setOn from 'lodash.set';
 
 @Module({
 	providers: [
@@ -18,6 +24,10 @@ import * as cron from 'node-cron';
 			provide: EXTENDED_CONFIG_OPTIONS,
 			useValue: {},
 		},
+		{
+			provide: PRE_LOADED_VALUES,
+			useValue: null,
+		},
 	],
 })
 export class ExtendedConfigModule {
@@ -28,7 +38,36 @@ export class ExtendedConfigModule {
 	 * If no strategy is passed and cache is disabled, current process.env will be used.
 	 * @param options
 	 */
-	static forRoot(options: ExtendedConfigModuleSyncOptions): DynamicModule {
+	static async forRoot(
+		options: ExtendedConfigModuleSyncOptions,
+	): Promise<DynamicModule> {
+		let preLoadedVariables: Record<string, any> | null = null;
+
+		if (options?.preload) {
+			preLoadedVariables = {};
+
+			for (const strategy of options.strategies || []) {
+				const { registerAs } = strategy;
+				const variables = await retrieveVariablesByStrategy(strategy);
+
+				if (registerAs) {
+					setOn(
+						preLoadedVariables as Record<string, any>,
+						registerAs,
+						variables,
+					);
+				} else {
+					Object.keys(variables).forEach((key: string) => {
+						setOn(
+							preLoadedVariables as Record<string, any>,
+							key,
+							variables[key],
+						);
+					});
+				}
+			}
+		}
+
 		return {
 			module: ExtendedConfigModule,
 			global: options.isGlobal,
@@ -36,6 +75,10 @@ export class ExtendedConfigModule {
 				{
 					provide: EXTENDED_CONFIG_OPTIONS,
 					useValue: options,
+				},
+				{
+					provide: PRE_LOADED_VALUES,
+					useValue: preLoadedVariables,
 				},
 				ExtendedConfigService,
 			],
@@ -77,6 +120,7 @@ export class ExtendedConfigModule {
 	}
 
 	protected async onModuleInit() {
-		await this.extendedConfigService.load();
+		const ensureLoad = true;
+		await this.extendedConfigService.load(ensureLoad);
 	}
 }

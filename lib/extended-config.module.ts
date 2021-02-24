@@ -47,23 +47,26 @@ export class ExtendedConfigModule {
 			preLoadedVariables = {};
 
 			for (const strategy of options.strategies || []) {
-				const { registerAs } = strategy;
-				const variables = await retrieveVariablesByStrategy(strategy);
+				const { registerAs, disable } = strategy;
 
-				if (registerAs) {
-					setOn(
-						preLoadedVariables as Record<string, any>,
-						registerAs,
-						variables,
-					);
-				} else {
-					Object.keys(variables).forEach((key: string) => {
+				if (!disable) {
+					const variables = await retrieveVariablesByStrategy(strategy);
+
+					if (registerAs) {
 						setOn(
 							preLoadedVariables as Record<string, any>,
-							key,
-							variables[key],
+							registerAs,
+							variables,
 						);
-					});
+					} else {
+						Object.keys(variables).forEach((key: string) => {
+							setOn(
+								preLoadedVariables as Record<string, any>,
+								key,
+								variables[key],
+							);
+						});
+					}
 				}
 			}
 		}

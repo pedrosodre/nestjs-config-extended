@@ -50,6 +50,8 @@ export class ExtendedConfigService<K = Record<string, any>> {
 				this.set(key as any, preLoadedValues[key]);
 			}
 			this.isLoaded = true;
+
+			this.configureSchedulerOnPreload();
 		}
 	}
 
@@ -166,40 +168,54 @@ export class ExtendedConfigService<K = Record<string, any>> {
 
 	private async loadVariables(onlyReloadable: boolean = false): Promise<void> {
 		for await (const strategy of this.options.strategies || []) {
-			const {
-				reloadable,
-				identifier,
-				schedule,
-				scheduleTimezone,
-				disable,
-			} = strategy;
+			const { reloadable, identifier } = strategy;
 
 			if (!onlyReloadable || reloadable) {
 				this.debug(STARTING_STRATEGY, identifier);
 
 				await this.loadVariablesByStrategy(strategy);
 
-				if (!disable && !onlyReloadable && schedule && reloadable) {
-					if (!this.scheduler.validate(schedule)) {
-						throw new InvalidScheduleException(identifier);
-					}
-
-					this.scheduler.schedule(
-						schedule,
-						async () => {
-							this.debug(
-								RELOADING_VARIABLES_FROM_STRATEGY_BY_SCHEDULER,
-								identifier,
-							);
-							await this.loadVariablesByStrategy(strategy);
-						},
-						{
-							scheduled: true,
-							timezone: scheduleTimezone,
-						},
-					);
+				if (!onlyReloadable) {
+					this.configureScheduler(strategy);
 				}
 			}
+		}
+	}
+
+	private configureSchedulerOnPreload(): void {
+		for (const strategy of this.options.strategies || []) {
+			this.configureScheduler(strategy);
+		}
+	}
+
+	private configureScheduler(strategy: ConfigLoaderStrategy): void {
+		const {
+			reloadable,
+			identifier,
+			schedule,
+			scheduleTimezone,
+			disable,
+		} = strategy;
+
+		if (!disable && schedule && reloadable) {
+			if (!this.scheduler.validate(schedule)) {
+				throw new InvalidScheduleException(identifier);
+			}
+
+			this.scheduler.schedule(
+				schedule,
+				async () => {
+					this.debug(
+						RELOADING_VARIABLES_FROM_STRATEGY_BY_SCHEDULER,
+						identifier,
+					);
+					await this.loadVariablesByStrategy(strategy);
+				},
+				{
+					scheduled: true,
+					timezone: scheduleTimezone,
+				},
+			);
 		}
 	}
 

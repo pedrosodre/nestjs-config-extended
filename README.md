@@ -17,12 +17,16 @@
     <img src="https://img.shields.io/github/issues-raw/pedrosodre/nestjs-config-extended" alt="Issues" />
     <img src="https://img.shields.io/github/last-commit/pedrosodre/nestjs-config-extended" alt="GitHub Last Commit" />
 </div>
+<br />
+
+> :warning: **Attention:** To support NestJS 8, this library will keep two stable versions. For NestJS 7, use `0.x` version.
 
 ## Description
 
 Extended Configuration Module for [Nest](https://github.com/nestjs/nest) based on the [Nest's Configuration Module](https://docs.nestjs.com/techniques/configuration) to load environment variables.
 
 ## Installation
+
 To begin using it, we first install the module itself.
 
 ```bash
@@ -38,7 +42,7 @@ import { Module } from '@nestjs/common';
 import { ExtendedConfigModule } from 'nestjs-config-extended';
 
 @Module({
-  imports: [ExtendedConfigModule],
+	imports: [ExtendedConfigModule],
 })
 export class AppModule {}
 ```
@@ -50,11 +54,11 @@ import { Module } from '@nestjs/common';
 import { ExtendedConfigModule } from 'nestjs-config-extended';
 
 @Module({
-  imports: [
-    ExtendedConfigModule.forRoot({
-      cache: false,
-    }),
-  ],
+	imports: [
+		ExtendedConfigModule.forRoot({
+			cache: false,
+		}),
+	],
 })
 export class AppModule {}
 ```
@@ -65,30 +69,30 @@ If needed, you can also initialize `ExtendedConfigModule` using `.forRootAsync()
 
 To customize module's configuration, you can setup few options by importing it using one of `.forRoot()` or `.forRootAsync()` method.
 
-| Option | Default value | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `strategies` | `[]` | `false` | `ConfigLoaderStrategy[]` | Array with all strategies used to load configuration variables. |
-| `cache` | `true` | `false` | `boolean` | If `false`, values will be stored directly in process.env object. <br> If `true`, values will be stored only in the memory. |
-| `debug` | `false` | `false` | `boolean` | If `true`, module will log some internal process information. |
-| `isGlobal` | `false` | `false` | `boolean` | If `true`, registers `ExtendedConfigModule` as a global module. |
-| `preload` | `false` | `false` | `boolean` | If `true`, variables load will be done by the module and injected on service. This option is required if you need to inject the service on a custom provider and retrieve a variable before application is totally ready. |
+| Option       | Default value | Required | Type                     | Description                                                                                                                                                                                                               |
+| ------------ | ------------- | -------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `strategies` | `[]`          | `false`  | `ConfigLoaderStrategy[]` | Array with all strategies used to load configuration variables.                                                                                                                                                           |
+| `cache`      | `true`        | `false`  | `boolean`                | If `false`, values will be stored directly in process.env object. <br> If `true`, values will be stored only in the memory.                                                                                               |
+| `debug`      | `false`       | `false`  | `boolean`                | If `true`, module will log some internal process information.                                                                                                                                                             |
+| `isGlobal`   | `false`       | `false`  | `boolean`                | If `true`, registers `ExtendedConfigModule` as a global module.                                                                                                                                                           |
+| `preload`    | `false`       | `false`  | `boolean`                | If `true`, variables load will be done by the module and injected on service. This option is required if you need to inject the service on a custom provider and retrieve a variable before application is totally ready. |
 
 ### Strategies
 
 To keep everything as flexible as possible, `ExtendedConfigModule` works with an array of strategies, that are specialized objects in load environment variables. Each strategy has its own options, as described below:
 
-| Option | Default value | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `loader` | - | `true` | `LoaderClass | LoaderMethod` | Class or function responsible for loading environment variables for this strategy. Accepts a custom function or class with load() method. |
-| `identifier` | - | `false` | `string | Symbol` | Identify a strategy to allow module to manipulate it directly on helper functions. |
-| `disable` | `false` | `false` | `boolean` | If `true`, this strategy will not used. This flag is useful to perform conditional strategy disabling. |
-| `options` | - | `false` | `Record<string, any>` | Set options to loader class or function. |
-| `reloadable` | `false` | `false` | `boolean` | If `false`, this strategy will not be called again when service or scheduler requests a reload. |
-| `schedule` | - | `false` | `string` | Schedules the strategy reload (if reloadable) using cron syntax. This feature may not work correctly with serverless functions. |
-| `scheduleTimezone` | - | `false` | `Timezone` | Set scheduler timezone. |
-| `registerAs` | - | `false` | `string` | If set, all configuration will be set under the key passed on this variable. |
-| `transformer` | - | `false` | `TransformerClass | TransformerMethod` | If you wish to transform the loaded configuration variables, you can pass a function to handle it. Accepts a function or a class with transform() method. |
-| `validator` | - | `false` | `ValidatorClass | ValidatorMethod` | If you wish to transform the loaded configuration variables, you can pass a function to handle it. Accepts a function or a class with validate() method. |
+| Option             | Default value | Required | Type                  | Description                                                                                                                     |
+| ------------------ | ------------- | -------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `loader`           | -             | `true`   | `LoaderClass          | LoaderMethod`                                                                                                                   | Class or function responsible for loading environment variables for this strategy. Accepts a custom function or class with load() method.                 |
+| `identifier`       | -             | `false`  | `string               | Symbol`                                                                                                                         | Identify a strategy to allow module to manipulate it directly on helper functions.                                                                        |
+| `disable`          | `false`       | `false`  | `boolean`             | If `true`, this strategy will not used. This flag is useful to perform conditional strategy disabling.                          |
+| `options`          | -             | `false`  | `Record<string, any>` | Set options to loader class or function.                                                                                        |
+| `reloadable`       | `false`       | `false`  | `boolean`             | If `false`, this strategy will not be called again when service or scheduler requests a reload.                                 |
+| `schedule`         | -             | `false`  | `string`              | Schedules the strategy reload (if reloadable) using cron syntax. This feature may not work correctly with serverless functions. |
+| `scheduleTimezone` | -             | `false`  | `Timezone`            | Set scheduler timezone.                                                                                                         |
+| `registerAs`       | -             | `false`  | `string`              | If set, all configuration will be set under the key passed on this variable.                                                    |
+| `transformer`      | -             | `false`  | `TransformerClass     | TransformerMethod`                                                                                                              | If you wish to transform the loaded configuration variables, you can pass a function to handle it. Accepts a function or a class with transform() method. |
+| `validator`        | -             | `false`  | `ValidatorClass       | ValidatorMethod`                                                                                                                | If you wish to transform the loaded configuration variables, you can pass a function to handle it. Accepts a function or a class with validate() method.  |
 
 #### Pre-made loaders
 
@@ -135,47 +139,44 @@ The examples below uses all availables options to help you to understand the mod
 
 ```typescript
 import { Module } from '@nestjs/common';
-import {
-  ExtendedConfigModule,
-  dotEnvLoader,
-} from 'nestjs-config-extended';
+import { ExtendedConfigModule, dotEnvLoader } from 'nestjs-config-extended';
 
 @Module({
-  imports: [
-    ExtendedConfigModule.forRoot({
-      cache: true,
-      debug: false,
-      isGlobal: true,
-      preload: true,
-      strategies: [
-        {
-          identifier: 'DOT_ENV_STRATEGY',
-          loader: dotEnvLoader,
-          disable: false,
-          options: {
-            path: '.env',
-            encoding: 'UTF-8',
-            expandVariables: true,
-          },
-          reloadable: false,
-          schedule: '* * * * *', // Every minute, but will not schedule since strategy is not reloadable
-          scheduleTimezone: 'America/Sao_Paulo',
-          registerAs: 'anyKey',
-          transformer: (variables: Record<string, any>) => {
-            variables.number = Number(variables.number);
-            return variables;
-          },
-          validator: (variables: Record<string, any>) => {
-            if (variables.number > 0) {
-              return true;
-            }
+	imports: [
+		ExtendedConfigModule.forRoot({
+			cache: true,
+			debug: false,
+			isGlobal: true,
+			preload: true,
+			strategies: [
+				{
+					identifier: 'DOT_ENV_STRATEGY',
+					loader: dotEnvLoader,
+					disable: false,
+					options: {
+						path: '.env',
+						encoding: 'UTF-8',
+						expandVariables: true,
+					},
+					reloadable: false,
+					schedule: '* * * * *', // Every minute, but will not schedule since strategy is not reloadable
+					scheduleTimezone: 'America/Sao_Paulo',
+					registerAs: 'anyKey',
+					transformer: (variables: Record<string, any>) => {
+						variables.number = Number(variables.number);
+						return variables;
+					},
+					validator: (variables: Record<string, any>) => {
+						if (variables.number > 0) {
+							return true;
+						}
 
-            return false;
-          },
-        },
-      ],
-    }),
-  ],
+						return false;
+					},
+				},
+			],
+		}),
+	],
 })
 export class AppModule {}
 ```
@@ -184,48 +185,45 @@ export class AppModule {}
 
 ```typescript
 import { Module } from '@nestjs/common';
-import {
-  ExtendedConfigModule,
-  dotEnvLoader,
-} from 'nestjs-config-extended';
+import { ExtendedConfigModule, dotEnvLoader } from 'nestjs-config-extended';
 
 @Module({
-  imports: [
-    ExtendedConfigModule.forRootAsync({
-      isGlobal: true,
-      imports: [SampleStrategyModule],
+	imports: [
+		ExtendedConfigModule.forRootAsync({
+			isGlobal: true,
+			imports: [SampleStrategyModule],
 			inject: [SampleStrategyService],
-      useFactory: async (loaderClass: SampleStrategyService) => {
-        return {
-          cache: true,
-          debug: false,
-          strategies: [
-            {
-              identifier: 'INJECTED_CLASS_STRATEGY',
-              loader: loaderClass,
-              disable: false,
-              options: {},
-              reloadable: true,
-              schedule: '* * * * *', // Every minute
-              scheduleTimezone: 'America/Sao_Paulo',
-              registerAs: 'anyKey',
-              transformer: (variables: Record<string, any>) => {
-                variables.number = Number(variables.number);
-                return variables;
-              },
-              validator: (variables: Record<string, any>) => {
-                if (variables.number > 0) {
-                  return true;
-                }
+			useFactory: async (loaderClass: SampleStrategyService) => {
+				return {
+					cache: true,
+					debug: false,
+					strategies: [
+						{
+							identifier: 'INJECTED_CLASS_STRATEGY',
+							loader: loaderClass,
+							disable: false,
+							options: {},
+							reloadable: true,
+							schedule: '* * * * *', // Every minute
+							scheduleTimezone: 'America/Sao_Paulo',
+							registerAs: 'anyKey',
+							transformer: (variables: Record<string, any>) => {
+								variables.number = Number(variables.number);
+								return variables;
+							},
+							validator: (variables: Record<string, any>) => {
+								if (variables.number > 0) {
+									return true;
+								}
 
-                return false;
-              },
-            },
-          ],
-        };
-      },
-    }),
-  ],
+								return false;
+							},
+						},
+					],
+				};
+			},
+		}),
+	],
 })
 export class AppModule {}
 ```

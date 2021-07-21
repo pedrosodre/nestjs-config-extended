@@ -2,10 +2,9 @@ name: Code Quality
 
 on:
   push:
-    branches: [ master ]
+    branches: [0.x, master]
   pull_request:
     types: [opened, synchronize, reopened]
-
 
 jobs:
   build:
@@ -16,18 +15,18 @@ jobs:
         node-version: [12.x]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm install -g sonarqube-scanner
-    - run: npm run lint
-    - run: |
-        npm run test:coverage
-        sonar-scanner -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm install -g sonarqube-scanner
+      - run: npm run lint
+      - run: |
+          npm run test:coverage
+          sonar-scanner -Dsonar.login=${{ secrets.SONAR_TOKEN }}
     env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

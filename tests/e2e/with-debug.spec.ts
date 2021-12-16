@@ -1,4 +1,4 @@
-import { INestApplication, ConsoleLogger } from '@nestjs/common';
+import { INestApplication, Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 
@@ -19,7 +19,7 @@ describe('With debug', () => {
 		const moduleRef = await Test.createTestingModule({
 			imports: [AppModule.withDebug(debug, variables)],
 		})
-			.overrideProvider(ConsoleLogger)
+			.overrideProvider(Logger)
 			.useValue(logger)
 			.compile();
 
@@ -34,7 +34,7 @@ describe('With debug', () => {
 		const moduleRef = await Test.createTestingModule({
 			imports: [AppModule.withDebug(debug, variables)],
 		})
-			.overrideProvider(ConsoleLogger)
+			.overrideProvider(Logger)
 			.useValue(logger)
 			.compile();
 

@@ -1,4 +1,4 @@
-import { DynamicModule, Module, Provider, ConsoleLogger } from '@nestjs/common';
+import { DynamicModule, Module, Provider, Logger } from '@nestjs/common';
 import {
 	CRON_SCHEDULER,
 	EXTENDED_CONFIG_OPTIONS,
@@ -15,7 +15,7 @@ import setOn from 'lodash.set';
 
 @Module({
 	providers: [
-		ConsoleLogger,
+		Logger,
 		{
 			provide: CRON_SCHEDULER,
 			useValue: cron,

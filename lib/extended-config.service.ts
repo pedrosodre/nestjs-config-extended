@@ -1,4 +1,4 @@
-import { Inject, Injectable, ConsoleLogger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import isFunction from 'lodash.isfunction';
 import { isUndefined } from 'util';
 import getFrom from 'lodash.get';
@@ -40,7 +40,7 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		private readonly options: ExtendedConfigModuleOptions,
 		@Inject(CRON_SCHEDULER)
 		private readonly scheduler: typeof cron,
-		private readonly logger: ConsoleLogger,
+		private readonly logger: Logger,
 		@Inject(PRE_LOADED_VALUES) preLoadedValues?: Record<string, any>,
 	) {
 		if (preLoadedValues) {

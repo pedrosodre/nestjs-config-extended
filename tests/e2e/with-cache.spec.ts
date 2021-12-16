@@ -21,7 +21,7 @@ describe('With cache', () => {
 		app = moduleRef.createNestApplication();
 		await app.init();
 
-		const service = app.get(ExtendedConfigService);
+		const service: ExtendedConfigService = app.get(ExtendedConfigService);
 		expect(service.get('invalid')).toBeUndefined();
 
 		for (const key of Object.keys(variables)) {
@@ -40,7 +40,7 @@ describe('With cache', () => {
 		app = moduleRef.createNestApplication();
 		await app.init();
 
-		const service = app.get(ExtendedConfigService);
+		const service: ExtendedConfigService = app.get(ExtendedConfigService);
 		expect(service.get('invalid')).toBeUndefined();
 
 		for (const key of Object.keys(variables)) {

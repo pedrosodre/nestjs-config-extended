@@ -53,7 +53,7 @@ describe('With strategy using functions', () => {
 			scheduled: true,
 		});
 
-		const service = app.get(ExtendedConfigService);
+		const service: ExtendedConfigService = app.get(ExtendedConfigService);
 		for (const key of Object.keys(variables)) {
 			expect(service.get(key)).toBe(variables[key]);
 			expect(process.env[key]).not.toBe(variables[key]);

@@ -14,7 +14,7 @@ describe('With strategy using injected class', () => {
 		app = moduleRef.createNestApplication();
 		await app.init();
 
-		const service = app.get(ExtendedConfigService);
+		const service: ExtendedConfigService = app.get(ExtendedConfigService);
 		expect(service.get('test')).toBe('strategy-class');
 	});
 

@@ -1,6 +1,6 @@
 {
   "name": "nestjs-config-extended",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Extended Configuration Module for Nest to load environment variables package",
   "author": "Pedro Sodré",
   "license": "MIT",

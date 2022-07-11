@@ -19,7 +19,7 @@
 </div>
 <br />
 
-> :warning: **Attention:** To support NestJS 8, this library will keep two stable versions. For NestJS 7, use `0.x` version.
+> :warning: **Attention:** To support NestJS v8 and v9, this library will keep two stable versions. For NestJS v7, use `0.x` version.
 
 ## Description
 

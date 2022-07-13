@@ -451,7 +451,7 @@ describe('With strategy using functions', () => {
 		await app.close();
 	});
 
-	it.only(`should load variables from strategy using functions and return latest value from getProxyOf after a reload`, async () => {
+	it(`should load variables from strategy using functions and return freshest value from an object-based variable with getProxyOf after a reload`, async () => {
 		const variablesBeforeReload = {
 			obj: { number: 0, string: 'foo' },
 		};
@@ -493,5 +493,46 @@ describe('With strategy using functions', () => {
 		expect(objectFromConfig).toMatchObject(variablesAfterReload.obj);
 		expect(objectFromConfig.number).toBe(variablesAfterReload.obj.number);
 		expect(objectFromConfig.string).toBe(variablesAfterReload.obj.string);
+	});
+
+	it(`should load variables from strategy using functions and return first value from a non object-based variable with getProxyOf after a reload`, async () => {
+		const variablesBeforeReload = {
+			string: 'foo',
+		};
+		const variablesAfterReload = {
+			string: 'bar',
+		};
+		const loader = jest
+			.fn()
+			.mockResolvedValueOnce(variablesBeforeReload)
+			.mockResolvedValueOnce(variablesAfterReload);
+
+		const moduleRef = await Test.createTestingModule({
+			imports: [
+				AppModule.withStrategy([
+					{
+						identifier: 'LOADER_FUNCTION',
+						reloadable: true,
+						loader,
+					},
+				]),
+			],
+		}).compile();
+
+		app = moduleRef.createNestApplication();
+		await app.init();
+
+		expect(loader).toHaveBeenCalledTimes(1);
+
+		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
+
+		const objectFromConfig = service.getProxyOf('string');
+
+		expect(objectFromConfig).toBe(variablesBeforeReload.string);
+
+		await service.reload();
+
+		expect(objectFromConfig).toBe(variablesBeforeReload.string);
+		expect(objectFromConfig).not.toBe(variablesAfterReload.string);
 	});
 });

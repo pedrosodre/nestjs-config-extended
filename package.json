@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --runInBand --coverage",
     "prerelease": "npm run build",
-    "release": "npm publish --access=public"
+    "release": "npm publish --access=public",
+    "semantic-release": "semantic-release"
   },
   "dependencies": {
     "dotenv": "8.2.0",
@@ -51,7 +52,8 @@
     "rimraf": "3.0.2",
     "ts-jest": "26.4.4",
     "tslint": "^6.1.3",
-    "typescript": "4.1.3"
+    "typescript": "4.1.3",
+    "semantic-release": "^19.0.3"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.0 || ^9.0.0",

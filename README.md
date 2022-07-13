@@ -19,7 +19,7 @@
 </div>
 <br />
 
-> :warning: **Attention:** To support NestJS v8 and v9, this library will keep two stable versions. For NestJS v7, use `0.x` version.
+> :warning: **Attention:** For NestJS v7, this library will maintain `0.x` version in maintenance mode only. The `1.x` version supports NestJS v8 or later.
 
 ## Description
 
@@ -121,6 +121,11 @@ await this.extendedConfigService.load(true);
 // get an environment variable
 const dbUser = this.extendedConfigService.get<string>('DATABASE_USER');
 
+// get a proxy of an object from environment variable
+const appConfig = this.extendedConfigService.getProxyOf<
+	Record<string, unknown>
+>('APP_CONFIG');
+
 // verify if an environment variable exists
 const hasPassword = this.extendedConfigService.has('DATABASE_USER');
 
@@ -130,6 +135,8 @@ await this.extendedConfigService.reload();
 // reload environment variables for a specific strategy that allows reload
 await this.extendedConfigService.reload('STRATEGY_IDENTIFIER');
 ```
+
+> :warning: **Important:** `getProxyOf()` method only returns a proxy when returned value is an object, in any other cases, it will return the value directly. If you need a non-object value from the proxy, try encapsulate it with a transformer.
 
 ## Full example
 

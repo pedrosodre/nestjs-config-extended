@@ -123,6 +123,28 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		return defaultValue;
 	}
 
+	/**
+	 * Method that retrieve a proxy of an environment variable given a key.
+	 *
+	 * @param propertyPath property path (key) associated with the desired variable.
+	 * @param defaultValue optional default variable to be returned if the service does not have the requested variable.
+	 */
+	getProxyOf<T = any>(propertyPath: keyof K, defaultValue?: T): T | undefined {
+		const baseTarget = this.get<T>(propertyPath, defaultValue);
+
+		if (baseTarget && typeof baseTarget === 'object')
+			return new Proxy(baseTarget as T & object, {
+				get: (_target, property: string) => {
+					const target: Record<string, unknown> =
+						this.get<T>(propertyPath, defaultValue) || {};
+
+					return target?.[property];
+				},
+			}) as T;
+
+		return baseTarget;
+	}
+
 	private getFromCache<T = any>(propertyPath: keyof K): T | undefined {
 		return getFrom(this.cache, propertyPath);
 	}

@@ -7,7 +7,6 @@
 </p>
 
 <div>
-    <img src="https://visitor-badge.glitch.me/badge?page_id=pedrosodre.nestjs-config-extended" alt="Visitor count" />
     <img src="https://img.shields.io/github/package-json/v/pedrosodre/nestjs-config-extended" alt="Module Version" />
     <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=alert_status" alt="SonarCloud Alert Status">
     <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=security_rating" alt="SonarCloud Security Rating">

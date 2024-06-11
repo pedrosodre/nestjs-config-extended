@@ -11,7 +11,7 @@ import {
 } from './interfaces';
 import * as cron from 'node-cron';
 import { retrieveVariablesByStrategy } from './util/loader.util';
-import setOn from 'lodash.set';
+import { setOn } from './util/object.util';
 
 @Module({
 	providers: [

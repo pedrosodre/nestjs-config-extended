@@ -1,9 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import isFunction from 'lodash.isfunction';
 import { isUndefined } from 'util';
 import getFrom from 'lodash.get';
 import hasOn from 'lodash.has';
-import setOn from 'lodash.set';
+import { setOn } from './util/object.util';
 import {
 	EXTENDED_CONFIG_OPTIONS,
 	CRON_SCHEDULER,

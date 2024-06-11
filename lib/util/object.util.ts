@@ -15,7 +15,7 @@ export const setOn = <
 
 	let nestedObj = obj;
 	for (let i = 0; i < pathArray.length; i++) {
-		let key: string | number = pathArray[i];
+		const key: string | number = pathArray[i];
 
 		if (nestedObj[key] === undefined) {
 			const isIndex = isNaN(Number(pathArray[i + 1]));

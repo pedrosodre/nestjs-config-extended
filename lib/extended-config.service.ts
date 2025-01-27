@@ -34,6 +34,8 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	private loading: boolean = false;
 	private readonly cache: Record<string, any> = {};
 
+	private DEBUG_LOG_PREFIX = '[Extended Config Module]';
+
 	constructor(
 		@Inject(EXTENDED_CONFIG_OPTIONS)
 		private readonly options: ExtendedConfigModuleOptions,
@@ -286,7 +288,7 @@ export class ExtendedConfigService<K = Record<string, any>> {
 			this.options?.debug
 				? (message: string, identifier?: string | Symbol) => {
 						this.logger.debug(
-							`[Extended Config Module] ${
+							`${this.DEBUG_LOG_PREFIX} ${
 								identifier || NOT_IDENTIFIED
 							}: ${message}`,
 						);
@@ -319,7 +321,7 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	private debug(message: string, identifier?: string | Symbol): void {
 		if (this.options?.debug) {
 			this.logger.debug(
-				`[Extended Config Module] ${identifier || NOT_IDENTIFIED}: ${message}`,
+				`${this.DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${message}`,
 			);
 		}
 	}

@@ -88,7 +88,7 @@ export const validateVariablesByStrategy = async (
 			throw err;
 		}
 
-		throw new ValidationException(err, identifier);
+		throw new ValidationException(err as Error, identifier);
 	}
 
 	if (!isValid) {
@@ -126,7 +126,7 @@ export const transformVariablesByStrategy = async (
 				throw err;
 			}
 
-			throw new TransformationException(err, identifier);
+			throw new TransformationException(err as Error, identifier);
 		}
 	}
 

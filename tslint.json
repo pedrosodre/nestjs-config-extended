@@ -14,10 +14,6 @@
             true,
             "always"
         ],
-        "quotemark": [
-            true,
-            "single"
-        ],
         "ordered-imports": false,
         "member-access": false,
         "arrow-parens": false,

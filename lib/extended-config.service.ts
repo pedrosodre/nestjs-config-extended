@@ -19,6 +19,7 @@ import {
 	LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED,
 	LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS,
 	VARIABLES_PRELOADED_BY_MODULE,
+	DEBUG_LOG_PREFIX,
 } from './config.constants';
 import {
 	ConfigLoaderStrategy,
@@ -33,8 +34,6 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	private loaded: boolean = false;
 	private loading: boolean = false;
 	private readonly cache: Record<string, any> = {};
-
-	private DEBUG_LOG_PREFIX = '[Extended Config Module]';
 
 	constructor(
 		@Inject(EXTENDED_CONFIG_OPTIONS)
@@ -288,9 +287,7 @@ export class ExtendedConfigService<K = Record<string, any>> {
 			this.options?.debug
 				? (message: string, identifier?: string | Symbol) => {
 						this.logger.debug(
-							`${this.DEBUG_LOG_PREFIX} ${
-								identifier || NOT_IDENTIFIED
-							}: ${message}`,
+							`${DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${message}`,
 						);
 				  }
 				: undefined,
@@ -321,7 +318,7 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	private debug(message: string, identifier?: string | Symbol): void {
 		if (this.options?.debug) {
 			this.logger.debug(
-				`${this.DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${message}`,
+				`${DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${message}`,
 			);
 		}
 	}

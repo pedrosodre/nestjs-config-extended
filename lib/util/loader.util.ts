@@ -77,7 +77,7 @@ export const validateVariablesByStrategy = async (
 
 			if (isFunction(validator)) {
 				isValid = await (validator as ValidatorMethod)(variables);
-			} else if (isFunction(validator?.validate)) {
+			} else if ('validate' in validator && isFunction(validator?.validate)) {
 				isValid = await (validator as ValidatorClass).validate(variables);
 			} else {
 				throw new InvalidValidatorException(identifier);
@@ -111,7 +111,10 @@ export const transformVariablesByStrategy = async (
 		try {
 			if (isFunction(transformer)) {
 				variables = await (transformer as TransformerMethod)(variables);
-			} else if (isFunction(transformer?.transform)) {
+			} else if (
+				'transform' in transformer &&
+				isFunction(transformer?.transform)
+			) {
 				variables = await (transformer as TransformerClass).transform(
 					variables,
 				);

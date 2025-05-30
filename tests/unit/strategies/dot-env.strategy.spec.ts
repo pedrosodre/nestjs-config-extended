@@ -19,7 +19,7 @@ describe('[Strategy] Dot Env', () => {
 	it('dotEnvLoader() should retrieve all variables from path array with UTF-8 encoding', () => {
 		const variables = dotEnvLoader({
 			path: [join(__dirname, '.env')],
-			encoding: 'UTF-8',
+			encoding: 'utf-8',
 		});
 
 		expect(variables.PORT).toBe('3000');

@@ -7,7 +7,7 @@ export interface DotEnvStrategyOptions {
 	/**
 	 * You may specify the encoding of your files containing environment variables.
 	 */
-	encoding?: string;
+	encoding?: BufferEncoding | null;
 
 	/**
 	 * You may turn on to allow it to expand loaded variables.

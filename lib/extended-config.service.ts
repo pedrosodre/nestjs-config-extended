@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { isUndefined } from 'util';
 import getFrom from 'lodash.get';
 import hasOn from 'lodash.has';
 import { setOn } from './util/object.util';
@@ -28,6 +27,7 @@ import {
 import { InvalidScheduleException } from './exceptions';
 import cron from 'node-cron';
 import { retrieveVariablesByStrategy } from './util/loader.util';
+import { isUndefined } from './util/is-undefined.util';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>> {
@@ -211,13 +211,8 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	}
 
 	private configureScheduler(strategy: ConfigLoaderStrategy): void {
-		const {
-			reloadable,
-			identifier,
-			schedule,
-			scheduleTimezone,
-			disable,
-		} = strategy;
+		const { reloadable, identifier, schedule, scheduleTimezone, disable } =
+			strategy;
 
 		if (!disable && schedule && reloadable) {
 			if (!this.scheduler.validate(schedule)) {
@@ -269,9 +264,8 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		const { disable, identifier } = strategy;
 
 		if (!disable) {
-			const loadedVariables: Record<string, any> = await this.retrieveVariables(
-				strategy,
-			);
+			const loadedVariables: Record<string, any> =
+				await this.retrieveVariables(strategy);
 
 			this.assignVariables(strategy, loadedVariables);
 		} else {
@@ -289,7 +283,7 @@ export class ExtendedConfigService<K = Record<string, any>> {
 						this.logger.debug(
 							`${DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${message}`,
 						);
-				  }
+					}
 				: undefined,
 		);
 	}

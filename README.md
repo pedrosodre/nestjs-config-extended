@@ -134,7 +134,7 @@ Based on key use cases, `ExtendedConfigModule` has some pre-made loaders. To use
 
 - `processEnvLoader`: loads variables from node's `process.env`.
 - `dotEnvLoader`: loads variables from `.env` files, based on loader options. You can specify file(s) `path` and `encoding`, and enable `expandVariables`.
-- `jsonFileLoader`: loads variables from a JSON file. Options: `path` (required, relative to `process.cwd()`), `encoding` and `optional` (a missing file loads nothing instead of failing).
+- `jsonFileLoader`: loads variables from a JSON file. Options: `path` (required, relative to `process.cwd()`), `encoding` and `optional` (a missing file loads nothing instead of failing; combined with `registerAs`, the key then holds an empty object).
 - `yamlFileLoader`: loads variables from a YAML file, with the same options. Requires the optional [`yaml`](https://www.npmjs.com/package/yaml) package (`npm install yaml`).
 
 ```typescript
@@ -257,6 +257,8 @@ export class DatabaseService {
 ```
 
 `getConfigToken('database')` returns the injection token, for example to use it in other providers' `inject` arrays.
+
+> **Note:** the first injection of a namespace triggers the first load while Nest creates providers, which is earlier than the module's `onModuleInit`. If a `forRootAsync()` loader is a provider that needs its own `onModuleInit` before it can load, make sure its dependencies are ready in its constructor or factory, or inject the namespace only in modules that are initialized after it.
 
 ### Reacting to changes
 

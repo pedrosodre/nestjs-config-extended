@@ -8,3 +8,4 @@ export * from './transformation-exception';
 export * from './process-env-assignment-exception';
 export * from './schema-validation-exception';
 export * from './missing-config-exception';
+export * from './invalid-reload-interval-exception';

@@ -26,6 +26,28 @@ export interface ValidatorClass {
 	validate: ValidatorMethod;
 }
 
+export interface RetryOptions {
+	/**
+	 * Number of additional attempts after the first failure.
+	 */
+	retries: number;
+
+	/**
+	 * Delay before the first retry, in milliseconds. Defaults to 1000.
+	 */
+	delay?: number;
+
+	/**
+	 * Multiplier applied to the delay after each retry. Defaults to 2.
+	 */
+	factor?: number;
+
+	/**
+	 * Maximum delay between retries, in milliseconds. Defaults to 30000.
+	 */
+	maxDelay?: number;
+}
+
 export interface ConfigLoaderStrategy {
 	/**
 	 * This module has some loaders ready to use.
@@ -64,6 +86,18 @@ export interface ConfigLoaderStrategy {
 	 * Set scheduler timezone using an IANA name (e.g. "America/Sao_Paulo").
 	 */
 	scheduleTimezone?: string;
+
+	/**
+	 * Reloads the strategy (if reloadable) at a fixed interval, as an alternative
+	 * to "schedule". Accepts milliseconds or a string like "30s", "5m" or "1h".
+	 */
+	reloadInterval?: number | string;
+
+	/**
+	 * Retries a failing loader with exponential backoff before giving up.
+	 * Applies to the first load and to every reload.
+	 */
+	retry?: RetryOptions;
 
 	/**
 	 * If set, all configuration will be set under the key passed on this variable.

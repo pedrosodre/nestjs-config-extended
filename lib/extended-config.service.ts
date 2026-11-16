@@ -22,6 +22,7 @@ import {
 	VARIABLES_PRELOADED_BY_MODULE,
 	DEBUG_LOG_PREFIX,
 	SCHEDULED_RELOAD_FAILED,
+	RELOADING_VARIABLES_FROM_STRATEGY_BY_INTERVAL,
 	ON_CHANGE_HOOK_FAILED,
 	ON_RELOAD_ERROR_HOOK_FAILED,
 } from './config.constants';
@@ -35,6 +36,7 @@ import {
 	ExtendedConfigModuleOptions,
 } from './interfaces';
 import {
+	InvalidReloadIntervalException,
 	InvalidScheduleException,
 	MissingConfigException,
 	ProcessEnvAssignmentException,
@@ -42,6 +44,7 @@ import {
 import { retrieveVariablesByStrategy } from './util/loader.util';
 import { isUndefined } from './util/is-undefined.util';
 import { isDeepEqual } from './util/deep-equal.util';
+import { parseDuration } from './util/duration.util';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>>
@@ -54,6 +57,9 @@ export class ExtendedConfigService<K = Record<string, any>>
 	/** Top-level keys this service wrote to process.env (cache disabled). */
 	private processEnvKeys = new Set<string>();
 	private readonly scheduledTasks: CronScheduledTask[] = [];
+	private readonly intervals: ReturnType<typeof setInterval>[] = [];
+	/** In-flight load of each strategy, so reloads never overlap. */
+	private readonly inFlight = new Map<number, Promise<void>>();
 	/** Merged view of the configuration, used to detect changes. */
 	private current: Record<string, any> = {};
 	private readonly version$ = new BehaviorSubject<number>(0);
@@ -253,35 +259,38 @@ export class ExtendedConfigService<K = Record<string, any>>
 	}
 
 	private configureScheduler(strategy: ConfigLoaderStrategy): void {
-		const { reloadable, identifier, schedule, scheduleTimezone, disable } =
-			strategy;
+		const {
+			reloadable,
+			identifier,
+			schedule,
+			scheduleTimezone,
+			reloadInterval,
+			disable,
+		} = strategy;
 
-		if (!disable && schedule && reloadable) {
+		if (disable || !reloadable) {
+			return;
+		}
+
+		if (schedule && reloadInterval !== undefined) {
+			throw new InvalidReloadIntervalException(
+				'schedule and reloadInterval cannot be used together',
+				identifier,
+			);
+		}
+
+		if (schedule) {
 			if (!this.scheduler.validate(schedule)) {
 				throw new InvalidScheduleException(identifier);
 			}
 
 			const task = this.scheduler.schedule(
 				schedule,
-				async () => {
-					this.debug(
+				() =>
+					this.runBackgroundReload(
+						strategy,
 						RELOADING_VARIABLES_FROM_STRATEGY_BY_SCHEDULER,
-						identifier,
-					);
-					try {
-						await this.loadVariablesByStrategy(strategy);
-					} catch (err) {
-						// Keep the last loaded values and report through the Nest logger
-						// instead of letting node-cron print to console.error.
-						this.logger.error(
-							`${DEBUG_LOG_PREFIX} ${
-								identifier || NOT_IDENTIFIED
-							}: ${SCHEDULED_RELOAD_FAILED}`,
-							(err as Error)?.stack || String(err),
-						);
-						await this.handleReloadError(err, identifier);
-					}
-				},
+					),
 				{
 					scheduled: true,
 					timezone: scheduleTimezone,
@@ -292,6 +301,49 @@ export class ExtendedConfigService<K = Record<string, any>>
 				this.scheduledTasks.push(task);
 			}
 		}
+
+		if (reloadInterval !== undefined) {
+			const interval = parseDuration(reloadInterval);
+			if (interval === undefined) {
+				throw new InvalidReloadIntervalException(
+					`"${reloadInterval}" is not a positive duration (e.g. 30000, "30s", "5m")`,
+					identifier,
+				);
+			}
+
+			const timer = setInterval(
+				() =>
+					this.runBackgroundReload(
+						strategy,
+						RELOADING_VARIABLES_FROM_STRATEGY_BY_INTERVAL,
+					),
+				interval,
+			);
+			// Do not keep the process alive only because of config reloads.
+			timer.unref?.();
+			this.intervals.push(timer);
+		}
+	}
+
+	private async runBackgroundReload(
+		strategy: ConfigLoaderStrategy,
+		debugMessage: string,
+	): Promise<void> {
+		const { identifier } = strategy;
+		this.debug(debugMessage, identifier);
+
+		try {
+			await this.loadVariablesByStrategy(strategy);
+		} catch (err) {
+			// Keep the last loaded values and report through the Nest logger.
+			this.logger.error(
+				`${DEBUG_LOG_PREFIX} ${
+					identifier || NOT_IDENTIFIED
+				}: ${SCHEDULED_RELOAD_FAILED}`,
+				(err as Error)?.stack || String(err),
+			);
+			await this.handleReloadError(err, identifier);
+		}
 	}
 
 	/**
@@ -300,6 +352,9 @@ export class ExtendedConfigService<K = Record<string, any>>
 	onModuleDestroy(): void {
 		for (const task of this.scheduledTasks.splice(0)) {
 			task.destroy();
+		}
+		for (const timer of this.intervals.splice(0)) {
+			clearInterval(timer);
 		}
 		this.changes$.complete();
 		this.version$.complete();
@@ -355,8 +410,30 @@ export class ExtendedConfigService<K = Record<string, any>>
 		return this.changes$.asObservable();
 	}
 
-	private async loadVariablesByStrategy(
+	private loadVariablesByStrategy(
 		strategy: ConfigLoaderStrategy,
+	): Promise<void> {
+		// Join an in-flight load of the same strategy instead of overlapping it.
+		const index = (this.options.strategies || []).indexOf(strategy);
+		const running = this.inFlight.get(index);
+		if (running) {
+			return running;
+		}
+
+		const promise = (async () => {
+			try {
+				await this.loadStrategy(strategy, index);
+			} finally {
+				this.inFlight.delete(index);
+			}
+		})();
+		this.inFlight.set(index, promise);
+		return promise;
+	}
+
+	private async loadStrategy(
+		strategy: ConfigLoaderStrategy,
+		index: number,
 	): Promise<void> {
 		const { disable, identifier } = strategy;
 
@@ -375,7 +452,6 @@ export class ExtendedConfigService<K = Record<string, any>>
 				this.toProcessEnvValues(strategy, loadedVariables);
 			}
 
-			const index = (this.options.strategies || []).indexOf(strategy);
 			this.results[index] = { ...loadedVariables };
 			this.applyResults(identifier);
 		} else {

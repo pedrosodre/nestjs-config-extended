@@ -82,19 +82,23 @@ To customize module's configuration, you can setup few options by importing it u
 
 To keep everything as flexible as possible, `ExtendedConfigModule` works with an array of strategies, that are specialized objects in load environment variables. Each strategy has its own options, as described below:
 
-| Option             | Default value | Required | Type                  | Description                                                                                                                     |
-| ------------------ | ------------- | -------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `loader`           | -             | `true`   | `LoaderClass          | LoaderMethod`                                                                                                                   | Class or function responsible for loading environment variables for this strategy. Accepts a custom function or class with load() method.                 |
-| `identifier`       | -             | `false`  | `string               | Symbol`                                                                                                                         | Identify a strategy to allow module to manipulate it directly on helper functions.                                                                        |
-| `disable`          | `false`       | `false`  | `boolean`             | If `true`, this strategy will not used. This flag is useful to perform conditional strategy disabling.                          |
-| `options`          | -             | `false`  | `Record<string, any>` | Set options to loader class or function.                                                                                        |
-| `reloadable`       | `false`       | `false`  | `boolean`             | If `false`, this strategy will not be called again when service or scheduler requests a reload.                                 |
-| `schedule`         | -             | `false`  | `string`              | Schedules the strategy reload (if reloadable) using cron syntax. This feature may not work correctly with serverless functions. |
-| `scheduleTimezone` | -             | `false`  | `Timezone`            | Set scheduler timezone.                                                                                                         |
-| `registerAs`       | -             | `false`  | `string`              | If set, all configuration will be set under the key passed on this variable.                                                    |
-| `transformer`      | -             | `false`  | `TransformerClass     | TransformerMethod`                                                                                                              | If you wish to transform the loaded configuration variables, you can pass a function to handle it. Accepts a function or a class with transform() method. |
-| `validator`        | -             | `false`  | `ValidatorClass       | ValidatorMethod`                                                                                                                | If you wish to transform the loaded configuration variables, you can pass a function to handle it. Accepts a function or a class with validate() method.  |
-| `schema`           | -             | `false`  | `StandardSchemaV1`    | [Standard Schema](https://standardschema.dev) (Zod, Valibot, ArkType, ...) that validates and parses the variables after the validator and transformer. Its output replaces the loaded variables. |
+| Option             | Default value | Required | Type                                    | Description |
+| ------------------ | ------------- | -------- | --------------------------------------- | ----------- |
+| `loader`           | -             | `true`   | `LoaderClass \| LoaderMethod`           | Class or function responsible for loading environment variables for this strategy. Accepts a custom function or class with `load()` method. |
+| `identifier`       | -             | `false`  | `string \| Symbol`                      | Identify a strategy to allow module to manipulate it directly on helper functions. |
+| `disable`          | `false`       | `false`  | `boolean`                               | If `true`, this strategy will not be used. Useful to perform conditional strategy disabling. |
+| `options`          | -             | `false`  | `Record<string, any>`                   | Options passed to the loader class or function. |
+| `reloadable`       | `false`       | `false`  | `boolean`                               | If `false`, this strategy will not be called again when service, scheduler or interval requests a reload. |
+| `schedule`         | -             | `false`  | `string`                                | Schedules the strategy reload (if reloadable) using cron syntax. This feature may not work correctly with serverless functions. |
+| `scheduleTimezone` | -             | `false`  | `string`                                | Scheduler timezone as an IANA name, e.g. `America/Sao_Paulo`. |
+| `reloadInterval`   | -             | `false`  | `number \| string`                      | Reloads the strategy (if reloadable) at a fixed interval, as an alternative to `schedule`. Milliseconds or a string like `'30s'`, `'5m'`, `'1h'`. |
+| `retry`            | -             | `false`  | `RetryOptions`                          | Retries a failing loader with exponential backoff: `{ retries, delay = 1000, factor = 2, maxDelay = 30000 }`. Applies to the first load and to reloads. |
+| `registerAs`       | -             | `false`  | `string`                                | If set, all configuration will be set under the key passed on this variable. |
+| `transformer`      | -             | `false`  | `TransformerClass \| TransformerMethod` | Transforms the loaded variables. Accepts a function or a class with `transform()` method. |
+| `validator`        | -             | `false`  | `ValidatorClass \| ValidatorMethod`     | Validates the loaded variables. Accepts a function or a class with `validate()` method. |
+| `schema`           | -             | `false`  | `StandardSchemaV1`                      | [Standard Schema](https://standardschema.dev) (Zod, Valibot, ArkType, ...) that validates and parses the variables after the validator and transformer. Its output replaces the loaded variables. |
+
+Reloads of the same strategy never overlap: a reload requested while another one is running for that strategy waits for it instead of calling the loader again. When a background reload (schedule or interval) fails, the error is logged, `onReloadError` is called and the previous values are kept.
 
 #### Pre-made loaders
 

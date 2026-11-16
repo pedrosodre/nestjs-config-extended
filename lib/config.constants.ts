@@ -44,3 +44,6 @@ export const PARSING_VARIABLES_WITH_SCHEMA =
 	"Parsing variables with strategy's schema";
 export const ON_CHANGE_HOOK_FAILED = 'onChange hook failed';
 export const ON_RELOAD_ERROR_HOOK_FAILED = 'onReloadError hook failed';
+export const RETRYING_LOADER = "Retrying strategy's loader";
+export const RELOADING_VARIABLES_FROM_STRATEGY_BY_INTERVAL =
+	"Reloading variables from strategy's loader by interval";

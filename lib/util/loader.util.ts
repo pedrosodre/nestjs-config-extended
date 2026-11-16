@@ -14,6 +14,7 @@ import {
 	INVALID_VARIABLES,
 	VALIDATING_VARIABLES_FROM_STRATEGY,
 	PARSING_VARIABLES_WITH_SCHEMA,
+	RETRYING_LOADER,
 } from '../config.constants';
 import {
 	InvalidLoaderException,
@@ -29,28 +30,13 @@ export const retrieveVariablesByStrategy = async (
 	strategy: ConfigLoaderStrategy,
 	debug?: (message: string, identifier?: string | Symbol) => void,
 ): Promise<Record<string, any>> => {
-	const { loader, identifier, options } = strategy;
-	let loadedVariables: Record<string, any> = {};
+	const { identifier } = strategy;
 
-	try {
-		if (debug) {
-			debug(LOADING_VARIABLES_FROM_STRATEGY, identifier);
-		}
-
-		if (isFunction(loader)) {
-			loadedVariables = await (loader as LoaderMethod)(options);
-		} else if (isFunction(loader?.load)) {
-			loadedVariables = await (loader as LoaderClass).load(options);
-		} else {
-			throw new InvalidLoaderException(identifier);
-		}
-	} catch (err) {
-		if (err instanceof InvalidLoaderException) {
-			throw err;
-		}
-
-		throw new LoadingException(err as Error, identifier);
+	if (debug) {
+		debug(LOADING_VARIABLES_FROM_STRATEGY, identifier);
 	}
+
+	let loadedVariables = await loadWithRetry(strategy, debug);
 
 	await validateVariablesByStrategy(strategy, loadedVariables, debug);
 
@@ -99,6 +85,60 @@ export const parseVariablesWithSchema = async (
 	}
 
 	return value as Record<string, any>;
+};
+
+const sleep = (ms: number) =>
+	new Promise<void>(resolve => setTimeout(resolve, ms));
+
+const callLoader = async (
+	strategy: ConfigLoaderStrategy,
+): Promise<Record<string, any>> => {
+	const { loader, identifier, options } = strategy;
+
+	if (isFunction(loader)) {
+		return (loader as LoaderMethod)(options);
+	}
+
+	if (isFunction(loader?.load)) {
+		return (loader as LoaderClass).load(options);
+	}
+
+	throw new InvalidLoaderException(identifier);
+};
+
+const loadWithRetry = async (
+	strategy: ConfigLoaderStrategy,
+	debug?: (message: string, identifier?: string | Symbol) => void,
+): Promise<Record<string, any>> => {
+	const { identifier, retry } = strategy;
+	const retries = Math.max(0, retry?.retries || 0);
+	const factor = retry?.factor ?? 2;
+	const maxDelay = retry?.maxDelay ?? 30000;
+	let delay = retry?.delay ?? 1000;
+
+	for (let attempt = 0; ; attempt++) {
+		try {
+			return await callLoader(strategy);
+		} catch (err) {
+			if (err instanceof InvalidLoaderException) {
+				throw err;
+			}
+
+			if (attempt >= retries) {
+				throw new LoadingException(err as Error, identifier);
+			}
+
+			if (debug) {
+				debug(
+					`${RETRYING_LOADER} (${attempt + 1}/${retries}) in ${delay}ms`,
+					identifier,
+				);
+			}
+
+			await sleep(delay);
+			delay = Math.min(delay * factor, maxDelay);
+		}
+	}
 };
 
 export const validateVariablesByStrategy = async (

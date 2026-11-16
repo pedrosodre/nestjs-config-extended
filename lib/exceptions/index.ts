@@ -6,3 +6,4 @@ export * from './validation-exception';
 export * from './loading-exception';
 export * from './transformation-exception';
 export * from './process-env-assignment-exception';
+export * from './schema-validation-exception';

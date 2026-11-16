@@ -92,6 +92,7 @@ To keep everything as flexible as possible, `ExtendedConfigModule` works with an
 | `registerAs`       | -             | `false`  | `string`              | If set, all configuration will be set under the key passed on this variable.                                                    |
 | `transformer`      | -             | `false`  | `TransformerClass     | TransformerMethod`                                                                                                              | If you wish to transform the loaded configuration variables, you can pass a function to handle it. Accepts a function or a class with transform() method. |
 | `validator`        | -             | `false`  | `ValidatorClass       | ValidatorMethod`                                                                                                                | If you wish to transform the loaded configuration variables, you can pass a function to handle it. Accepts a function or a class with validate() method.  |
+| `schema`           | -             | `false`  | `StandardSchemaV1`    | [Standard Schema](https://standardschema.dev) (Zod, Valibot, ArkType, ...) that validates and parses the variables after the validator and transformer. Its output replaces the loaded variables. |
 
 #### Pre-made loaders
 
@@ -99,6 +100,29 @@ Based on key use cases, `ExtendedConfigModule` has two pre-made loaders. To use 
 
 - `processEnvLoader`: loads variables from node's `process.env`.
 - `dotEnvLoader`: loads variables from `.env` files, based on loader options. You can specify file(s) `path` and `encoding`, and enable `expandVariables`.
+
+#### Schema validation
+
+Any [Standard Schema](https://standardschema.dev) compatible library (Zod 3.24+, Valibot 1+, ArkType 2+, ...) can validate and parse a strategy's variables. The parsed output (with coerced types and defaults) replaces the loaded variables, and `InferConfig` types the service from the schema:
+
+```typescript
+import { z } from 'zod';
+import { dotEnvLoader, ExtendedConfigService, InferConfig } from 'nestjs-config-extended';
+
+export const envSchema = z.object({
+	PORT: z.coerce.number().default(3000),
+	DATABASE_URL: z.string().url(),
+});
+
+ExtendedConfigModule.forRoot({
+	strategies: [{ loader: dotEnvLoader, schema: envSchema }],
+});
+
+// inject a typed service
+constructor(private config: ExtendedConfigService<InferConfig<typeof envSchema>>) {}
+```
+
+When validation fails, loading throws a `SchemaValidationException` that lists every issue and exposes them on its `issues` property.
 
 ## Using the `ExtendedConfigService`
 

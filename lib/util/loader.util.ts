@@ -13,12 +13,14 @@ import {
 	LOADING_VARIABLES_FROM_STRATEGY,
 	INVALID_VARIABLES,
 	VALIDATING_VARIABLES_FROM_STRATEGY,
+	PARSING_VARIABLES_WITH_SCHEMA,
 } from '../config.constants';
 import {
 	InvalidLoaderException,
 	InvalidTransformerException,
 	InvalidValidatorException,
 	LoadingException,
+	SchemaValidationException,
 	TransformationException,
 	ValidationException,
 } from '../exceptions';
@@ -58,7 +60,45 @@ export const retrieveVariablesByStrategy = async (
 		debug,
 	);
 
+	loadedVariables = await parseVariablesWithSchema(
+		strategy,
+		loadedVariables,
+		debug,
+	);
+
 	return loadedVariables;
+};
+
+export const parseVariablesWithSchema = async (
+	strategy: ConfigLoaderStrategy,
+	variables: Record<string, any>,
+	debug?: (message: string, identifier?: string | Symbol) => void,
+): Promise<Record<string, any>> => {
+	const { schema, identifier } = strategy;
+
+	if (!schema) {
+		return variables;
+	}
+
+	if (debug) {
+		debug(PARSING_VARIABLES_WITH_SCHEMA, identifier);
+	}
+
+	const result = await schema['~standard'].validate(variables);
+
+	if (result.issues) {
+		throw new SchemaValidationException(result.issues, identifier);
+	}
+
+	const value = result.value;
+	if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+		throw new SchemaValidationException(
+			[{ message: 'schema output must be an object' }],
+			identifier,
+		);
+	}
+
+	return value as Record<string, any>;
 };
 
 export const validateVariablesByStrategy = async (

@@ -1,3 +1,5 @@
+import { StandardSchemaV1 } from './standard-schema.interface';
+
 type LoaderReturnValue = Record<string, any> | Promise<Record<string, any>>;
 
 export type LoaderMethod<T extends LoaderReturnValue = LoaderReturnValue> = (
@@ -79,4 +81,11 @@ export interface ConfigLoaderStrategy {
 	 * Accepts a function or a class with validate() method.
 	 */
 	validator?: ValidatorClass | ValidatorMethod;
+
+	/**
+	 * Standard Schema (Zod, Valibot, ArkType, ...) used to validate and parse the
+	 * variables after the validator and transformer run. The parsed output (for
+	 * example with coerced numbers and defaults) replaces the loaded variables.
+	 */
+	schema?: StandardSchemaV1;
 }

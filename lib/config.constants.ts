@@ -40,3 +40,5 @@ export const NOT_LOADED_STRATEGY_DISABLED =
 export const DEBUG_LOG_PREFIX = '[Extended Config Module]';
 export const SCHEDULED_RELOAD_FAILED =
 	'Scheduled reload failed, keeping previously loaded variables';
+export const PARSING_VARIABLES_WITH_SCHEMA =
+	"Parsing variables with strategy's schema";

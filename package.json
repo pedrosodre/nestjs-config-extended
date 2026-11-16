@@ -47,7 +47,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepare": "husky",
     "lint:package": "publint --strict && attw --pack .",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run build && npm run lint:package"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run build && npm run lint:package && npm run test:compat",
+    "test:compat": "node tests/compat/runtime.cjs && node tests/compat/runtime.mjs"
   },
   "dependencies": {
     "dotenv": "16.6.1",
@@ -128,7 +129,7 @@
     "url": "https://github.com/pedrosodre/nestjs-config-extended"
   },
   "lint-staged": {
-    "*.{ts,mts,mjs,js}": [
+    "*.{ts,mts,cts,mjs,cjs,js}": [
       "eslint --fix",
       "prettier --write"
     ],

@@ -21,6 +21,24 @@ export default tseslint.config(
 		},
 	},
 	{
+		files: ['tests/compat/**/*.{cjs,mjs}'],
+		languageOptions: {
+			globals: {
+				console: 'readonly',
+				process: 'readonly',
+				require: 'readonly',
+			},
+		},
+		rules: {
+			'no-console': 'off',
+			'@typescript-eslint/no-require-imports': 'off',
+		},
+	},
+	{
+		files: ['tests/compat/**/*.cjs'],
+		languageOptions: { sourceType: 'commonjs' },
+	},
+	{
 		files: ['tests/**/*.ts'],
 		rules: {
 			'@typescript-eslint/no-require-imports': 'off',

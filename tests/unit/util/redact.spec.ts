@@ -52,6 +52,15 @@ describe('redactConfig', () => {
 	});
 });
 
+it('should keep $ patterns in a custom replacement literal', () => {
+	expect(
+		redactConfig(
+			{ DATABASE_URL: 'postgres://user:s3cr3t@db/app' },
+			{ replacement: '$&' },
+		),
+	).toEqual({ DATABASE_URL: 'postgres://user:$&@db/app' });
+});
+
 describe('ExtendedConfigService redaction', () => {
 	const createService = (redact?: any) =>
 		new ExtendedConfigService<any>(

@@ -39,7 +39,12 @@ export const redactConfig = (
 
 	const redact = (current: unknown): unknown => {
 		if (typeof current === 'string') {
-			return current.replace(URL_CREDENTIALS, `$1${replacement}$3`);
+			// Function replacer, so "$" patterns in a custom replacement stay literal.
+			return current.replace(
+				URL_CREDENTIALS,
+				(_match, prefix: string, _password: string, suffix: string) =>
+					`${prefix}${replacement}${suffix}`,
+			);
 		}
 
 		if (Array.isArray(current)) {

@@ -113,4 +113,4 @@ We follow [Conventional Commits](https://www.conventionalcommits.org). Versions 
 
 ## Releases
 
-Releases are fully automated with [semantic-release](https://semantic-release.gitbook.io). After CI passes on `master`, `next` or an `N.x` branch, it computes the version from the commits, publishes to npm with provenance, creates the git tag (`vX.Y.Z`) and the GitHub release with the notes. Never create tags or bump `package.json` by hand.
+Releases are fully automated with [semantic-release](https://semantic-release.gitbook.io). After CI passes on `master`, `next` or an `N.x` branch, it computes the version from the commits, publishes to npm with provenance, creates the git tag (`vX.Y.Z`) and the GitHub release with the notes. Never create tags or bump `package.json` by hand. Maintainer settings and the release checklist live in [MAINTAINING.md](MAINTAINING.md).

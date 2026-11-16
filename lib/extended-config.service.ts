@@ -32,7 +32,7 @@ import { isUndefined } from './util/is-undefined.util';
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>> {
 	private loaded: boolean = false;
-	private loading: boolean = false;
+	private loadingPromise?: Promise<void>;
 	private readonly cache: Record<string, any> = {};
 
 	constructor(
@@ -63,14 +63,6 @@ export class ExtendedConfigService<K = Record<string, any>> {
 		this.loaded = isLoaded;
 	}
 
-	private get isLoading(): boolean {
-		return this.loading;
-	}
-
-	private set isLoading(isLoading: boolean) {
-		this.loading = isLoading;
-	}
-
 	/**
 	 * Method that initiates the first loading of the variables.
 	 * This method can be called multiple times, but variables will be loaded only on first call.
@@ -79,26 +71,33 @@ export class ExtendedConfigService<K = Record<string, any>> {
 	 * If "false" and service already have a loading in progress, this method will not wait for it.
 	 */
 	async load(ensureLoad: boolean = false): Promise<void> {
-		if (!this.isLoaded && !this.isLoading) {
-			this.debug(FIRST_LOAD_REQUESTED, ALL_STRATEGIES);
-
-			this.isLoading = true;
-			await this.loadVariables();
-			this.isLoading = false;
-			this.isLoaded = true;
-		} else {
-			if (this.isLoaded) {
-				this.debug(LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED, ALL_STRATEGIES);
-			} else if (this.isLoading) {
-				this.debug(LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS, ALL_STRATEGIES);
-			}
-
-			if (ensureLoad) {
-				while (!this.isLoaded) {
-					await new Promise(r => setTimeout(r, 100));
-				}
-			}
+		if (this.isLoaded) {
+			this.debug(LOAD_REQUEST_IGNORED_DUE_ALREADY_LOADED, ALL_STRATEGIES);
+			return;
 		}
+
+		if (this.loadingPromise) {
+			this.debug(LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS, ALL_STRATEGIES);
+			if (ensureLoad) {
+				await this.loadingPromise;
+			}
+			return;
+		}
+
+		this.debug(FIRST_LOAD_REQUESTED, ALL_STRATEGIES);
+
+		// Share a single promise between concurrent callers. If loading fails,
+		// every waiter receives the error and a later call can retry.
+		this.loadingPromise = (async () => {
+			try {
+				await this.loadVariables();
+				this.isLoaded = true;
+			} finally {
+				this.loadingPromise = undefined;
+			}
+		})();
+
+		await this.loadingPromise;
 	}
 
 	/**

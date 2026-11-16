@@ -1,0 +1,102 @@
+# nestjs-config-extended
+
+> NestJS configuration module (NestJS 11 and 12, Node.js 22.12+, CommonJS and ESM). It loads configuration from ordered strategies (environment variables, .env, JSON, YAML or custom loaders), validates it with any Standard Schema library, reloads it on demand, on a cron schedule or at an interval, and exposes it through `ExtendedConfigService`, `@InjectConfig()` namespaces and RxJS observables.
+
+Import everything from the package root: `import { ... } from 'nestjs-config-extended'`. Deep imports are not supported.
+
+## Setup
+
+```ts
+import { Module } from '@nestjs/common';
+import { ExtendedConfigModule, processEnvLoader, dotEnvLoader, yamlFileLoader } from 'nestjs-config-extended';
+import { z } from 'zod';
+
+const envSchema = z.object({ PORT: z.coerce.number().default(3000), DATABASE_URL: z.string() });
+
+@Module({
+  imports: [
+    ExtendedConfigModule.forRoot({
+      isGlobal: true,
+      strategies: [
+        { identifier: 'ENV', loader: processEnvLoader, schema: envSchema },
+        { identifier: 'FILE', loader: yamlFileLoader, options: { path: 'config/app.yaml' }, registerAs: 'app', reloadable: true, reloadInterval: '5m' },
+      ],
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+- Strategies run in order; later strategies override earlier keys. Each strategy runs `loader → validator → transformer → schema`.
+- `forRootAsync({ imports, inject, useFactory })` builds the options with dependency injection.
+- `preload: true` (forRoot only) loads before providers are created.
+
+## Strategy options (`ConfigLoaderStrategy`)
+
+- `loader` (required): function `(options) => object | Promise<object>` or an object with `load(options)`.
+- `identifier`: `string | symbol`, used by `reload(identifier)`, logs and errors.
+- `options`: passed to the loader. `disable`: skip the strategy.
+- `registerAs`: store the whole result under this key (requires the default `cache: true`).
+- `validator` (returns boolean), `transformer` (returns object), `schema` (Standard Schema: Zod 3.24+, Valibot 1+, ArkType 2+; its output replaces the variables).
+- `reloadable`, plus either `schedule` (cron, with `scheduleTimezone`) or `reloadInterval` (ms or '30s', '5m', '1h').
+- `retry: { retries, delay = 1000, factor = 2, maxDelay = 30000 }` for failing loaders.
+
+## Module options
+
+`strategies`, `cache` (default true; `false` writes flat string values to process.env), `isGlobal`, `preload`, `debug` (logs key names only), `redact` (`{ keys?, replacement? }` or `false`), `onChange(event)`, `onReloadError(error, identifier)`.
+
+## Built-in loaders
+
+- `processEnvLoader`: process.env.
+- `dotEnvLoader`: options `{ path?: string | string[], encoding?, expandVariables? }` (default `.env` in cwd; expansion never writes process.env).
+- `jsonFileLoader` / `yamlFileLoader`: options `{ path, encoding?, optional? }`. YAML needs the optional `yaml` package.
+
+## ExtendedConfigService
+
+```ts
+interface AppConfig { db: { host: string } }
+type Config = InferConfig<typeof envSchema> & { app: AppConfig };
+
+constructor(private readonly config: ExtendedConfigService<Config>) {}
+
+config.get('PORT');                // typed, dotted paths such as 'app.db.host'
+config.get('PORT', 3000);          // with default
+config.getOrThrow('DATABASE_URL'); // throws MissingConfigException when undefined
+config.has('app.db');
+config.getProxyOf('app');          // read-only live proxy of an object value
+await config.reload();             // all reloadable strategies (rejects with the first error)
+await config.reload('FILE');       // one strategy
+config.watch('app.db.host').subscribe(value => ...); // current value, then distinct changes
+config.changes().subscribe(({ reason, identifier, changedKeys }) => ...);
+config.getStatus();                // { loaded, strategies: [{ identifier, loaded, consecutiveFailures, lastError, ... }] }
+JSON.stringify(config);            // configuration with secrets masked (also console.log)
+```
+
+Untyped services accept any string and explicit type arguments, e.g. `config.get<string>('KEY')`.
+
+## Injecting namespaces
+
+```ts
+@Module({ imports: [ExtendedConfigModule.forFeature('app')], providers: [AppService] })
+export class FeatureModule {}
+
+@Injectable()
+export class AppService {
+  constructor(@InjectConfig('app') private readonly app: AppConfig) {} // live read-only proxy
+}
+```
+
+Requires `isGlobal: true` on the root module. `getConfigToken('app')` returns the injection token.
+
+## Health checks (@nestjs/terminus 11+)
+
+Add `ExtendedConfigHealthIndicator` to a module's providers and call `this.configHealth.isHealthy('config', { maxConsecutiveFailures: 3 })` inside `HealthCheckService.check([...])`.
+
+## Errors
+
+`LoadingException`, `ValidationException`, `TransformationException`, `SchemaValidationException` (with `issues`), `InvalidLoaderException`, `InvalidValidatorException`, `InvalidTransformerException`, `InvalidScheduleException`, `InvalidReloadIntervalException`, `ProcessEnvAssignmentException`, `MissingConfigException`.
+
+## Links
+
+- README: https://github.com/pedrosodre/nestjs-config-extended#readme
+- Migration from 1.x: https://github.com/pedrosodre/nestjs-config-extended/blob/master/MIGRATION.md

@@ -46,7 +46,8 @@
   "files": [
     "dist",
     "index.mjs",
-    "index.d.mts"
+    "index.d.mts",
+    "llms.txt"
   ],
   "engines": {
     "node": ">=22.12.0"

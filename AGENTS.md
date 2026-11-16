@@ -54,6 +54,7 @@ tests/compat/                 runtime smoke tests against the built package (CJS
 
 - **Tests are required.** Every bug fix needs a test that fails without the fix; every feature needs tests. Coverage thresholds are enforced.
 - **Public API changes are deliberate.** If `npm run api:check` fails, the public API changed: make sure it is intended, run `npm run api:update` and commit the updated `etc/*.api.md`. Breaking changes need `!` in the commit type and a `BREAKING CHANGE:` footer, and a note in MIGRATION.md.
+- **Keep `llms.txt` in sync.** It ships in the npm package as an API summary for users' AI assistants; update it when public options or methods change.
 - **Never edit `dist/`** (generated) or bump the `version` in `package.json` / create tags (semantic-release does it).
 - **Keep the ESM entry a re-export of the CommonJS build.** Nest's dependency injection relies on class identity; shipping a second copy of the classes breaks it.
 - **Symbols:** strategy identifiers can be symbols. Never interpolate them in template literals directly; use `formatIdentifier()`.

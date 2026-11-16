@@ -426,6 +426,8 @@ export class AppModule {}
 
 Contributions are welcome! Read the [contributing guide](CONTRIBUTING.md) to get started, and please follow the [Code of Conduct](CODE_OF_CONDUCT.md). To report a security problem, see the [security policy](SECURITY.md).
 
+An API summary for AI coding assistants ships with the package as [`llms.txt`](llms.txt) (also at `node_modules/nestjs-config-extended/llms.txt`).
+
 Release notes are published on the [GitHub releases page](https://github.com/pedrosodre/nestjs-config-extended/releases).
 
 ## License

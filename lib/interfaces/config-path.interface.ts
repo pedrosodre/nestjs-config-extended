@@ -1,6 +1,11 @@
 type Primitive = string | number | boolean | bigint | symbol | null | undefined;
 type IsAny<T> = 0 extends 1 & T ? true : false;
-type Leaf = Primitive | Function | Date | RegExp | ReadonlyArray<any>;
+type Leaf =
+	| Primitive
+	| ((...args: any[]) => any)
+	| Date
+	| RegExp
+	| ReadonlyArray<any>;
 type PrevDepth = [never, 0, 1, 2, 3, 4, 5];
 
 /**

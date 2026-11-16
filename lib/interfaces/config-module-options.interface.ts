@@ -1,9 +1,9 @@
 import {
+	DynamicModule,
+	FactoryProvider,
+	ForwardReference,
 	ModuleMetadata,
 	Type,
-	DynamicModule,
-	ForwardReference,
-	Abstract,
 } from '@nestjs/common';
 import { ConfigChangeEvent } from './config-change-event.interface';
 import { ConfigLoaderStrategy } from './config-loader-strategy.interface';
@@ -87,5 +87,5 @@ export interface ExtendedConfigModuleAsyncOptions
 	useFactory?: (
 		...args: any[]
 	) => Promise<ExtendedConfigModuleOptions> | ExtendedConfigModuleOptions;
-	inject?: (Type<any> | string | symbol | Abstract<any> | Function)[];
+	inject?: FactoryProvider['inject'];
 }

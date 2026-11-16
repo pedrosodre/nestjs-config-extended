@@ -1,4 +1,4 @@
-// tslint:disable:no-namespace
+/* eslint-disable @typescript-eslint/no-namespace */
 /**
  * Standard Schema v1 interface (https://standardschema.dev).
  * Copied as recommended by the spec so no runtime dependency is needed.

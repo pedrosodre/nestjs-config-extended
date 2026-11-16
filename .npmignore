@@ -2,7 +2,6 @@
 lib
 tests
 package-lock.json
-tslint.json
 tsconfig.json
 .prettierrc
 

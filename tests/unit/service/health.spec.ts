@@ -32,7 +32,8 @@ describe('getStatus()', () => {
 		expect(service.getStatus().loaded).toBe(false);
 		await service.load();
 
-		let [a, b] = service.getStatus().strategies;
+		const [first, b] = service.getStatus().strategies;
+		let a = first;
 		expect(service.getStatus().loaded).toBe(true);
 		expect(a).toMatchObject({
 			identifier: 'A',

@@ -3,7 +3,6 @@ import {
 	ConfigLoaderStrategy,
 	ExtendedConfigModule,
 	ExtendedConfigModuleSyncOptions,
-	processEnvLoader,
 } from '../../lib';
 import { SampleStrategyModule } from './sample-strategy.module';
 import { SampleStrategyService } from './sample-strategy.service';

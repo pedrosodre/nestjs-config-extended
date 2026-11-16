@@ -37,7 +37,10 @@ export class ExtendedConfigFeatureModule {}
 			provide: PRE_LOADED_VALUES,
 			useValue: null,
 		},
+		// Lets the module be imported without forRoot() (default options).
+		ExtendedConfigService,
 	],
+	exports: [ExtendedConfigService],
 })
 export class ExtendedConfigModule {
 	constructor(private extendedConfigService: ExtendedConfigService) {}

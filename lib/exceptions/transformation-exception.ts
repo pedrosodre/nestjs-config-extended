@@ -1,11 +1,9 @@
-import { NOT_IDENTIFIED } from '../config.constants';
+import { formatIdentifier } from '../util/identifier.util';
 
 export class TransformationException extends Error {
-	constructor(reason: Error | string, identifier?: string | Symbol) {
+	constructor(reason: Error | string, identifier?: string | symbol) {
 		super(
-			`${
-				identifier || NOT_IDENTIFIED
-			} strategy's transformer was not able to transform variables due "${reason}"`,
+			`${formatIdentifier(identifier)} strategy's transformer was not able to transform variables due "${reason}"`,
 		);
 	}
 }

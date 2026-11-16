@@ -28,7 +28,7 @@ import {
 
 export const retrieveVariablesByStrategy = async (
 	strategy: ConfigLoaderStrategy,
-	debug?: (message: string, identifier?: string | Symbol) => void,
+	debug?: (message: string, identifier?: string | symbol) => void,
 ): Promise<Record<string, any>> => {
 	const { identifier } = strategy;
 
@@ -58,7 +58,7 @@ export const retrieveVariablesByStrategy = async (
 export const parseVariablesWithSchema = async (
 	strategy: ConfigLoaderStrategy,
 	variables: Record<string, any>,
-	debug?: (message: string, identifier?: string | Symbol) => void,
+	debug?: (message: string, identifier?: string | symbol) => void,
 ): Promise<Record<string, any>> => {
 	const { schema, identifier } = strategy;
 
@@ -108,7 +108,7 @@ const callLoader = async (
 
 const loadWithRetry = async (
 	strategy: ConfigLoaderStrategy,
-	debug?: (message: string, identifier?: string | Symbol) => void,
+	debug?: (message: string, identifier?: string | symbol) => void,
 ): Promise<Record<string, any>> => {
 	const { identifier, retry } = strategy;
 	const retries = Math.max(0, retry?.retries || 0);
@@ -144,7 +144,7 @@ const loadWithRetry = async (
 export const validateVariablesByStrategy = async (
 	strategy: ConfigLoaderStrategy,
 	variables: Record<string, any>,
-	debug?: (message: string, identifier?: string | Symbol) => void,
+	debug?: (message: string, identifier?: string | symbol) => void,
 ): Promise<void> => {
 	const { validator, identifier } = strategy;
 	let isValid = true;
@@ -179,7 +179,7 @@ export const validateVariablesByStrategy = async (
 export const transformVariablesByStrategy = async (
 	strategy: ConfigLoaderStrategy,
 	variables: Record<string, any>,
-	debug?: (message: string, identifier?: string | Symbol) => void,
+	debug?: (message: string, identifier?: string | symbol) => void,
 ): Promise<Record<string, any>> => {
 	const { transformer, identifier } = strategy;
 

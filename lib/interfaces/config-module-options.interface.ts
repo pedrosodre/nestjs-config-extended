@@ -50,7 +50,7 @@ export interface ExtendedConfigModuleOptions {
 	 */
 	onReloadError?: (
 		error: Error,
-		identifier?: string | Symbol,
+		identifier?: string | symbol,
 	) => void | Promise<void>;
 }
 

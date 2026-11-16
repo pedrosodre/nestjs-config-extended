@@ -1,11 +1,9 @@
-import { NOT_IDENTIFIED } from '../config.constants';
+import { formatIdentifier } from '../util/identifier.util';
 
 export class InvalidValidatorException extends Error {
-	constructor(identifier?: string | Symbol) {
+	constructor(identifier?: string | symbol) {
 		super(
-			`${
-				identifier || NOT_IDENTIFIED
-			} strategy's validator is not an instance of ValidatorMethod or ValidatorClass`,
+			`${formatIdentifier(identifier)} strategy's validator is not an instance of ValidatorMethod or ValidatorClass`,
 		);
 	}
 }

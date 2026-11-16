@@ -7,7 +7,7 @@ export interface ConfigChangeEvent {
 	/**
 	 * Identifier of the strategy whose result triggered the change.
 	 */
-	identifier?: string | Symbol;
+	identifier?: string | symbol;
 
 	/**
 	 * Top-level keys whose value was added, changed or removed.

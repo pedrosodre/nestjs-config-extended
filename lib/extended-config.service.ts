@@ -1,3 +1,4 @@
+import { formatIdentifier } from './util/identifier.util';
 import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
@@ -8,7 +9,6 @@ import {
 	EXTENDED_CONFIG_OPTIONS,
 	CRON_SCHEDULER,
 	PRE_LOADED_VALUES,
-	NOT_IDENTIFIED,
 	STARTING_STRATEGY,
 	ASSIGNING_VARIABLES_TO_PROCESS_ENV,
 	ASSIGNING_VARIABLES_TO_CACHE,
@@ -347,9 +347,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 		} catch (err) {
 			// Keep the last loaded values and report through the Nest logger.
 			this.logger.error(
-				`${DEBUG_LOG_PREFIX} ${
-					identifier || NOT_IDENTIFIED
-				}: ${SCHEDULED_RELOAD_FAILED}`,
+				`${DEBUG_LOG_PREFIX} ${formatIdentifier(identifier)}: ${SCHEDULED_RELOAD_FAILED}`,
 				(err as Error)?.stack || String(err),
 			);
 			await this.handleReloadError(err, identifier);
@@ -375,7 +373,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 	 *
 	 * @param strategyIdentifier optional strategy's identifier to allow reload environment variables from a single strategy.
 	 */
-	async reload(strategyIdentifier?: string | Symbol): Promise<void> {
+	async reload(strategyIdentifier?: string | symbol): Promise<void> {
 		if (strategyIdentifier) {
 			const strategy = this.options.strategies?.find(
 				singleStrategy => singleStrategy.identifier === strategyIdentifier,
@@ -549,9 +547,9 @@ export class ExtendedConfigService<K = Record<string, any>>
 		return retrieveVariablesByStrategy(
 			strategy,
 			this.options?.debug
-				? (message: string, identifier?: string | Symbol) => {
+				? (message: string, identifier?: string | symbol) => {
 						this.logger.debug(
-							`${DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${message}`,
+							`${DEBUG_LOG_PREFIX} ${formatIdentifier(identifier)}: ${message}`,
 						);
 					}
 				: undefined,
@@ -563,7 +561,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 	 * in declaration order. This keeps precedence stable (later strategies win)
 	 * and drops keys that a reloaded strategy no longer returns.
 	 */
-	private applyResults(identifier?: string | Symbol): void {
+	private applyResults(identifier?: string | symbol): void {
 		const strategies = this.options.strategies || [];
 
 		if (this.isCacheEnabled) {
@@ -605,7 +603,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 
 	private notifyChanges(
 		next: Record<string, any>,
-		identifier?: string | Symbol,
+		identifier?: string | symbol,
 	): void {
 		const previous = this.current;
 		this.current = next;
@@ -634,7 +632,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 
 	private async handleReloadError(
 		error: unknown,
-		identifier?: string | Symbol,
+		identifier?: string | symbol,
 	): Promise<void> {
 		const err = error instanceof Error ? error : new Error(String(error));
 		await this.runHook(ON_RELOAD_ERROR_HOOK_FAILED, identifier, () =>
@@ -644,14 +642,14 @@ export class ExtendedConfigService<K = Record<string, any>>
 
 	private async runHook(
 		failureMessage: string,
-		identifier: string | Symbol | undefined,
+		identifier: string | symbol | undefined,
 		hook: () => void | Promise<void> | undefined,
 	): Promise<void> {
 		try {
 			await hook();
 		} catch (err) {
 			this.logger.error(
-				`${DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${failureMessage}`,
+				`${DEBUG_LOG_PREFIX} ${formatIdentifier(identifier)}: ${failureMessage}`,
 				(err as Error)?.stack || String(err),
 			);
 		}
@@ -705,10 +703,10 @@ export class ExtendedConfigService<K = Record<string, any>>
 		return values;
 	}
 
-	private debug(message: string, identifier?: string | Symbol): void {
+	private debug(message: string, identifier?: string | symbol): void {
 		if (this.options?.debug) {
 			this.logger.debug(
-				`${DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${message}`,
+				`${DEBUG_LOG_PREFIX} ${formatIdentifier(identifier)}: ${message}`,
 			);
 		}
 	}

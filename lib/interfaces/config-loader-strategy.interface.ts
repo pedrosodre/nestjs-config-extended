@@ -58,7 +58,7 @@ export interface ConfigLoaderStrategy {
 	/**
 	 * Identify a strategy to allow module to manipulate it directly on helper functions.
 	 */
-	identifier?: string | Symbol;
+	identifier?: string | symbol;
 
 	/**
 	 * If "true", this strategy will not used.

@@ -1,4 +1,4 @@
-import { NOT_IDENTIFIED } from '../config.constants';
+import { formatIdentifier } from '../util/identifier.util';
 import { StandardSchemaV1 } from '../interfaces/standard-schema.interface';
 
 const formatPath = (issue: StandardSchemaV1.Issue): string =>
@@ -17,7 +17,7 @@ export class SchemaValidationException extends Error {
 
 	constructor(
 		issues: ReadonlyArray<StandardSchemaV1.Issue>,
-		identifier?: string | Symbol,
+		identifier?: string | symbol,
 	) {
 		const details = issues
 			.map(issue => {
@@ -27,9 +27,7 @@ export class SchemaValidationException extends Error {
 			.join('; ');
 
 		super(
-			`${
-				identifier || NOT_IDENTIFIED
-			} strategy's variables do not match the schema: ${details}`,
+			`${formatIdentifier(identifier)} strategy's variables do not match the schema: ${details}`,
 		);
 		this.name = 'SchemaValidationException';
 		this.issues = issues;

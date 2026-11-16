@@ -1,11 +1,9 @@
-import { NOT_IDENTIFIED } from '../config.constants';
+import { formatIdentifier } from '../util/identifier.util';
 
 export class InvalidTransformerException extends Error {
-	constructor(identifier?: string | Symbol) {
+	constructor(identifier?: string | symbol) {
 		super(
-			`${
-				identifier || NOT_IDENTIFIED
-			} strategy's transformer is not an instance of TransformerClass or TransformerMethod`,
+			`${formatIdentifier(identifier)} strategy's transformer is not an instance of TransformerClass or TransformerMethod`,
 		);
 	}
 }

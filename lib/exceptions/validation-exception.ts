@@ -1,11 +1,9 @@
-import { NOT_IDENTIFIED } from '../config.constants';
+import { formatIdentifier } from '../util/identifier.util';
 
 export class ValidationException extends Error {
-	constructor(reason: Error | string, identifier?: string | Symbol) {
+	constructor(reason: Error | string, identifier?: string | symbol) {
 		super(
-			`${
-				identifier || NOT_IDENTIFIED
-			} strategy's loaded variables cannot be validated by validator due "${reason}"`,
+			`${formatIdentifier(identifier)} strategy's loaded variables cannot be validated by validator due "${reason}"`,
 		);
 	}
 }

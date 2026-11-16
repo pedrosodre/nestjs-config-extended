@@ -1,11 +1,9 @@
-import { NOT_IDENTIFIED } from '../config.constants';
+import { formatIdentifier } from '../util/identifier.util';
 
 export class ProcessEnvAssignmentException extends Error {
-	constructor(reason: string, identifier?: string | Symbol) {
+	constructor(reason: string, identifier?: string | symbol) {
 		super(
-			`${
-				identifier || NOT_IDENTIFIED
-			} strategy's variables cannot be stored on process.env (cache disabled) due "${reason}"`,
+			`${formatIdentifier(identifier)} strategy's variables cannot be stored on process.env (cache disabled) due "${reason}"`,
 		);
 	}
 }

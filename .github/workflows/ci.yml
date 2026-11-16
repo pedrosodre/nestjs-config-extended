@@ -67,6 +67,9 @@ jobs:
   sonar:
     name: SonarCloud
     needs: check
+    # Quality reporting only: a SonarCloud outage or misconfiguration must not
+    # fail CI or block releases.
+    continue-on-error: true
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:

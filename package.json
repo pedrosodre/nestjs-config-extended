@@ -1,11 +1,33 @@
 {
   "name": "nestjs-config-extended",
   "version": "1.2.7",
-  "description": "Extended Configuration Module for Nest to load environment variables package",
+  "description": "Extended configuration module for NestJS: load, validate, reload and inject configuration from environment variables, .env, JSON, YAML or custom sources.",
   "author": "Pedro Sodré",
   "license": "MIT",
+  "homepage": "https://github.com/pedrosodre/nestjs-config-extended#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pedrosodre/nestjs-config-extended.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pedrosodre/nestjs-config-extended/issues"
+  },
+  "keywords": [
+    "nestjs",
+    "nest",
+    "config",
+    "configuration",
+    "env",
+    "dotenv",
+    "environment-variables",
+    "yaml",
+    "json",
+    "schema",
+    "zod",
+    "standard-schema",
+    "secrets"
+  ],
   "type": "commonjs",
-  "url": "https://github.com/pedrosodre/nestjs-config-extended",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -117,10 +139,6 @@
         "lines": 90
       }
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/pedrosodre/nestjs-config-extended"
   },
   "lint-staged": {
     "*.{ts,mts,cts,mjs,cjs,js}": [

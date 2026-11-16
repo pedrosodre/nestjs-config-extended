@@ -3,33 +3,62 @@
 </p>
 
 <p align="center">
-  Extended Configuration Module for Nest to load environment variables package.
+  Load, validate, reload and inject configuration in NestJS from any source.
 </p>
 
-<div>
-    <img src="https://img.shields.io/github/package-json/v/pedrosodre/nestjs-config-extended" alt="Module Version" />
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=alert_status" alt="SonarCloud Alert Status">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=security_rating" alt="SonarCloud Security Rating">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=coverage" alt="SonarCloud Coverage">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=bugs" alt="SonarCloud Bugs">
-    <img src="https://img.shields.io/github/license/pedrosodre/nestjs-config-extended" alt="License" />
-    <img src="https://img.shields.io/github/issues-raw/pedrosodre/nestjs-config-extended" alt="Issues" />
-    <img src="https://img.shields.io/github/last-commit/pedrosodre/nestjs-config-extended" alt="GitHub Last Commit" />
-</div>
-<br />
-
-> :warning: **Attention:** Starting on version 2, this library supports `nestjs@11` or higher only. For NestJS 8, 9, and 10, stay on `1.x`. For NestJS 7, stay on `0.x`.
+<p align="center">
+  <a href="https://www.npmjs.com/package/nestjs-config-extended"><img src="https://img.shields.io/npm/v/nestjs-config-extended" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/nestjs-config-extended"><img src="https://img.shields.io/npm/dm/nestjs-config-extended" alt="npm downloads" /></a>
+  <a href="https://github.com/pedrosodre/nestjs-config-extended/actions/workflows/release.yml"><img src="https://github.com/pedrosodre/nestjs-config-extended/actions/workflows/release.yml/badge.svg?branch=master" alt="CI and release" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=nestjs-config-extended"><img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=alert_status" alt="Quality Gate" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=nestjs-config-extended"><img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=coverage" alt="Coverage" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/npm/l/nestjs-config-extended" alt="License" /></a>
+</p>
 
 ## Description
 
-Extended Configuration Module for [Nest](https://github.com/nestjs/nest) based on the [Nest's Configuration Module](https://docs.nestjs.com/techniques/configuration) to load environment variables.
+Extended configuration module for [NestJS](https://nestjs.com), inspired by [Nest's configuration module](https://docs.nestjs.com/techniques/configuration). It combines configuration from several **strategies** (environment variables, `.env`, JSON and YAML files, or your own loaders such as a secrets manager) and adds:
+
+- **Validation** with any [Standard Schema](https://standardschema.dev) library (Zod, Valibot, ArkType, ...) and **typed access** with autocompleted dotted paths.
+- **Reloading** on demand, on a cron schedule or at an interval, with retries, and **change notifications** through RxJS observables and hooks.
+- **Injectable namespaces** with `@InjectConfig()`, which always reflect the latest values.
+- **Safe printing**: secrets are masked when the configuration is logged.
+- **Health checks** for `@nestjs/terminus`.
+- CommonJS and ESM support.
+
+## Contents
+
+- [Compatibility](#compatibility)
+- [Installation](#installation)
+- [Getting started](#getting-started)
+- [Module configuration](#module-configuration) · [Strategies](#strategies) · [Pre-made loaders](#pre-made-loaders) · [Schema validation](#schema-validation)
+- [Using the `ExtendedConfigService`](#using-the-extendedconfigservice)
+- [Printing configuration safely](#printing-configuration-safely) · [Injecting namespaces](#injecting-configuration-namespaces) · [Reacting to changes](#reacting-to-changes) · [Health checks](#health-checks) · [Typed configuration](#typed-configuration)
+- [Full example](#full-example)
+- [Contributing](#contributing)
+
+## Compatibility
+
+| nestjs-config-extended | NestJS   | Node.js |
+| ---------------------- | -------- | ------- |
+| 2.x                    | 11, 12   | 20+     |
+| 1.x                    | 8, 9, 10 | -       |
+| 0.x                    | 7        | -       |
+
+NestJS 12 is ESM-only. This package works with it from both CommonJS and ESM applications on Node.js versions that support `require()` of ES modules (20.19+ or 22.12+).
+
+Upgrading from 1.x? Read the [migration guide](MIGRATION.md).
 
 ## Installation
 
-To begin using it, we first install the module itself.
+```bash
+npm install nestjs-config-extended
+```
+
+To use `yamlFileLoader`, also install the optional [`yaml`](https://www.npmjs.com/package/yaml) package:
 
 ```bash
-$ npm i --save nestjs-config-extended
+npm install yaml
 ```
 
 ## Getting started
@@ -298,7 +327,7 @@ Untyped services keep accepting any string and explicit type arguments such as `
 
 ## Full example
 
-The examples below uses all availables options to help you to understand the module, but some of them are conflicting.
+The examples below use most of the available options to show how they fit together. Some of them conflict with each other, so do not copy them as-is.
 
 ### Using `.forRoot()`
 
@@ -393,12 +422,12 @@ import { ExtendedConfigModule, dotEnvLoader } from 'nestjs-config-extended';
 export class AppModule {}
 ```
 
-## Stay in touch
+## Contributing
 
-- Author - [Pedro Sodré](https://github.com/pedrosodre)
+Contributions are welcome! Read the [contributing guide](CONTRIBUTING.md) to get started, and please follow the [Code of Conduct](CODE_OF_CONDUCT.md). To report a security problem, see the [security policy](SECURITY.md).
+
+Release notes are published on the [GitHub releases page](https://github.com/pedrosodre/nestjs-config-extended/releases).
 
 ## License
 
-This module is [MIT licensed](LICENSE).
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+[MIT](LICENSE) © [Pedro Sodré](https://github.com/pedrosodre)

@@ -5,6 +5,20 @@
   "author": "Pedro Sodré",
   "license": "MIT",
   "url": "https://github.com/pedrosodre/nestjs-config-extended",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "index.mjs"
+  ],
   "scripts": {
     "build": "rimraf -rf dist && tsc -p tsconfig.json",
     "lint": "tslint -c tslint.json 'lib/**/*.ts'",

@@ -31,6 +31,10 @@ describe('Typed paths', () => {
 
 		// @ts-expect-error unknown path is rejected for typed services
 		expect(service.get('db.missing')).toBeUndefined();
+		// @ts-expect-error the default value must match the path's type
+		expect(service.get('PORT', 'not-a-number')).toBe(3000);
+		// explicit type arguments remain an escape hatch
+		expect(service.get<string>('PORT', 'fallback')).toBe(3000);
 		// @ts-expect-error inferred type is number, not string
 		const wrong: string | undefined = service.get('PORT');
 		expect(wrong).toBe(3000);

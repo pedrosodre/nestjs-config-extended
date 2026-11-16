@@ -37,11 +37,11 @@ Extended configuration module for [NestJS](https://nestjs.com), inspired by [Nes
 
 ## Compatibility
 
-| nestjs-config-extended | NestJS   | Node.js |
-| ---------------------- | -------- | ------- |
-| 2.x                    | 11, 12   | 22.12+  |
-| 1.x                    | 8, 9, 10 | -       |
-| 0.x                    | 7        | -       |
+| nestjs-config-extended | NestJS   | Node.js | TypeScript |
+| ---------------------- | -------- | ------- | ---------- |
+| 2.x                    | 11, 12   | 22.12+  | 5.4+       |
+| 1.x                    | 8, 9, 10 | -       | -          |
+| 0.x                    | 7        | -       | -          |
 
 NestJS 12 is ESM-only. This package works with it from both CommonJS and ESM applications, relying on `require()` of ES modules, which Node.js supports without a flag since 22.12.
 

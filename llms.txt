@@ -1,6 +1,6 @@
 # nestjs-config-extended
 
-> NestJS configuration module (NestJS 11 and 12, Node.js 22.12+, CommonJS and ESM). It loads configuration from ordered strategies (environment variables, .env, JSON, YAML or custom loaders), validates it with any Standard Schema library, reloads it on demand, on a cron schedule or at an interval, and exposes it through `ExtendedConfigService`, `@InjectConfig()` namespaces and RxJS observables.
+> NestJS configuration module (NestJS 11 and 12, Node.js 22.12+, TypeScript 5.4+, CommonJS and ESM). It loads configuration from ordered strategies (environment variables, .env, JSON, YAML or custom loaders), validates it with any Standard Schema library, reloads it on demand, on a cron schedule or at an interval, and exposes it through `ExtendedConfigService`, `@InjectConfig()` namespaces and RxJS observables.
 
 Import everything from the package root: `import { ... } from 'nestjs-config-extended'`. Deep imports are not supported.
 

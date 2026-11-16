@@ -193,7 +193,7 @@ export class ExtendedConfigService<K = Record<string, any>> implements OnModuleD
     // (undocumented)
     get<P extends ConfigPath<K>>(propertyPath: P, defaultValue: ConfigPathValue<K, P>): ConfigPathValue<K, P>;
     // (undocumented)
-    get<T = any>(propertyPath: ConfigPath<K>, defaultValue?: T): T | undefined;
+    get<T = never>(propertyPath: ConfigPath<K>, defaultValue?: NoInfer<T>): T | undefined;
     // (undocumented)
     getOrThrow<P extends ConfigPath<K>>(propertyPath: P): NonNullable<ConfigPathValue<K, P>>;
     // (undocumented)
@@ -201,7 +201,7 @@ export class ExtendedConfigService<K = Record<string, any>> implements OnModuleD
     // (undocumented)
     getProxyOf<P extends ConfigPath<K>>(propertyPath: P, defaultValue?: ConfigPathValue<K, P>): ConfigPathValue<K, P> | undefined;
     // (undocumented)
-    getProxyOf<T = any>(propertyPath: ConfigPath<K>, defaultValue?: T): T | undefined;
+    getProxyOf<T = never>(propertyPath: ConfigPath<K>, defaultValue?: NoInfer<T>): T | undefined;
     // (undocumented)
     getStatus(): ConfigStatus;
     // (undocumented)

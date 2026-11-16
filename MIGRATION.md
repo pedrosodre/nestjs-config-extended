@@ -6,6 +6,7 @@ Version 2 targets NestJS 11 and 12, adds several features and fixes behaviors th
 
 - **NestJS 11 or 12** (`@nestjs/common` and `@nestjs/core`). Stay on 1.x for NestJS 8 to 10.
 - **Node.js 22.12 or newer.** Node.js 20 reached end-of-life in April 2026, and 22.12 is the first Node.js 22 release that loads ES modules with `require()` without a flag, which this CommonJS package needs for ESM-only NestJS 12.
+- **TypeScript 5.4 or newer**, if you use TypeScript (the typings use `NoInfer`).
 - **`rxjs` is a peer dependency** and is no longer installed by this package. NestJS already requires it, so no action is usually needed.
 - **`yaml`** is an optional peer dependency, only needed for the new `yamlFileLoader`.
 

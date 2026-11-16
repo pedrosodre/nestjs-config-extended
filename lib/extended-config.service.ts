@@ -182,7 +182,13 @@ export class ExtendedConfigService<
 		propertyPath: P,
 		defaultValue: ConfigPathValue<K, P>,
 	): ConfigPathValue<K, P>;
-	get<T = any>(propertyPath: ConfigPath<K>, defaultValue?: T): T | undefined;
+	// Explicit type argument form, e.g. get<string>('KEY', 'x'). NoInfer stops T
+	// from being inferred from the default, so a default that does not match the
+	// path's type is rejected instead of silently widening the return type.
+	get<T = never>(
+		propertyPath: ConfigPath<K>,
+		defaultValue?: NoInfer<T>,
+	): T | undefined;
 	get(propertyPath: string, defaultValue?: unknown): any {
 		const value = this.isCacheEnabled
 			? getFrom(this.cache, propertyPath)
@@ -221,15 +227,17 @@ export class ExtendedConfigService<
 		propertyPath: P,
 		defaultValue?: ConfigPathValue<K, P>,
 	): ConfigPathValue<K, P> | undefined;
-	getProxyOf<T = any>(
+	getProxyOf<T = never>(
 		propertyPath: ConfigPath<K>,
-		defaultValue?: T,
+		defaultValue?: NoInfer<T>,
 	): T | undefined;
 	getProxyOf(propertyPath: ConfigPath<K>, defaultValue?: unknown): any {
-		const baseTarget = this.get(propertyPath, defaultValue);
+		const baseTarget = this.get<unknown>(propertyPath, defaultValue);
 
 		if (baseTarget && typeof baseTarget === 'object') {
-			return createConfigProxy(() => this.get(propertyPath, defaultValue));
+			return createConfigProxy(() =>
+				this.get<unknown>(propertyPath, defaultValue),
+			);
 		}
 
 		return baseTarget;

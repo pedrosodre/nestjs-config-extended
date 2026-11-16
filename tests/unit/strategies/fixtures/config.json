@@ -1,4 +1,4 @@
 {
-  "PORT": 3000,
-  "database": { "host": "localhost", "ssl": true }
+	"PORT": 3000,
+	"database": { "host": "localhost", "ssl": true }
 }

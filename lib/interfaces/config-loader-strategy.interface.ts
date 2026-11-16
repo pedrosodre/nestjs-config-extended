@@ -10,9 +10,8 @@ export interface LoaderClass {
 	load: LoaderMethod;
 }
 
-export type TransformerMethod<
-	T extends LoaderReturnValue = LoaderReturnValue
-> = (variables: Record<string, any>) => T;
+export type TransformerMethod<T extends LoaderReturnValue = LoaderReturnValue> =
+	(variables: Record<string, any>) => T;
 
 export interface TransformerClass {
 	transform: TransformerMethod;

@@ -12,7 +12,7 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> => {
  */
 export const cloneConfigValue = <T>(value: T): T => {
 	if (Array.isArray(value)) {
-		return (value.map(item => cloneConfigValue(item)) as unknown) as T;
+		return value.map(item => cloneConfigValue(item)) as unknown as T;
 	}
 
 	if (isPlainObject(value)) {

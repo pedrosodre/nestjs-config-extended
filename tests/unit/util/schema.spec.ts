@@ -26,7 +26,7 @@ const appSchema = (
 				? { value: { PORT: port, HOST: String(input.HOST ?? 'localhost') } }
 				: {
 						issues: [{ message: 'Expected integer', path: [{ key: 'PORT' }] }],
-				  };
+					};
 			return async ? Promise.resolve(result) : result;
 		},
 	},

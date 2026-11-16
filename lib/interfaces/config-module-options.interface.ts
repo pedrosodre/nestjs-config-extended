@@ -54,8 +54,7 @@ export interface ExtendedConfigModuleOptions {
 	) => void | Promise<void>;
 }
 
-export interface ExtendedConfigModuleSyncOptions
-	extends ExtendedConfigModuleOptions {
+export interface ExtendedConfigModuleSyncOptions extends ExtendedConfigModuleOptions {
 	/**
 	 * If "true", registers `ExtendedConfigModule` as a global module.
 	 * See: https://docs.nestjs.com/modules#global-modules
@@ -70,8 +69,10 @@ export interface ExtendedConfigModuleSyncOptions
 	preload?: boolean;
 }
 
-export interface ExtendedConfigModuleAsyncOptions
-	extends Pick<ModuleMetadata, 'imports'> {
+export interface ExtendedConfigModuleAsyncOptions extends Pick<
+	ModuleMetadata,
+	'imports'
+> {
 	/**
 	 * If "true", registers `ExtendedConfigModule` as a global module.
 	 * See: https://docs.nestjs.com/modules#global-modules
@@ -79,10 +80,7 @@ export interface ExtendedConfigModuleAsyncOptions
 	isGlobal?: boolean;
 
 	imports?: (
-		| Type<any>
-		| DynamicModule
-		| Promise<DynamicModule>
-		| ForwardReference
+		Type<any> | DynamicModule | Promise<DynamicModule> | ForwardReference
 	)[];
 	useFactory?: (
 		...args: any[]

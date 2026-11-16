@@ -56,6 +56,5 @@ export declare namespace StandardSchemaV1 {
  * Configuration type produced by a Standard Schema, to type the service:
  * `ExtendedConfigService<InferConfig<typeof schema>>`.
  */
-export type InferConfig<
-	Schema extends StandardSchemaV1
-> = StandardSchemaV1.InferOutput<Schema>;
+export type InferConfig<Schema extends StandardSchemaV1> =
+	StandardSchemaV1.InferOutput<Schema>;

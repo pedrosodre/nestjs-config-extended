@@ -68,35 +68,35 @@ If needed, you can also initialize `ExtendedConfigModule` using `.forRootAsync()
 
 To customize module's configuration, you can setup few options by importing it using one of `.forRoot()` or `.forRootAsync()` method.
 
-| Option       | Default value | Required | Type                     | Description                                                                                                                                                                                                               |
-| ------------ | ------------- | -------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `strategies` | `[]`          | `false`  | `ConfigLoaderStrategy[]` | Array with all strategies used to load configuration variables.                                                                                                                                                           |
-| `cache`      | `true`        | `false`  | `boolean`                | If `false`, values will be stored directly in process.env object (as strings, under their literal key; object values and `registerAs` are not supported). <br> If `true`, values will be stored only in the memory.                                                                                               |
-| `debug`      | `false`       | `false`  | `boolean`                | If `true`, module will log some internal process information.                                                                                                                                                             |
-| `isGlobal`   | `false`       | `false`  | `boolean`                | If `true`, registers `ExtendedConfigModule` as a global module.                                                                                                                                                           |
-| `preload`    | `false`       | `false`  | `boolean`                | If `true`, variables load will be done by the module and injected on service. This option is required if you need to inject the service on a custom provider and retrieve a variable before application is totally ready. |
-| `redact`        | defaults | `false`  | `RedactOptions \| false` | How `toJSON()` and `console.log(service)` mask sensitive values: `{ keys?: (string \| RegExp)[], replacement?: string }`. `false` disables masking. |
-| `onChange`      | -        | `false`  | `(event: ConfigChangeEvent) => void \| Promise<void>` | Called after a load or reload changes at least one top-level key. Errors are logged and never break loading. |
-| `onReloadError` | -        | `false`  | `(error: Error, identifier?) => void \| Promise<void>` | Called when a scheduled reload or `reload()` fails. Previously loaded values are kept. |
+| Option          | Default value | Required | Type                                                   | Description                                                                                                                                                                                                               |
+| --------------- | ------------- | -------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `strategies`    | `[]`          | `false`  | `ConfigLoaderStrategy[]`                               | Array with all strategies used to load configuration variables.                                                                                                                                                           |
+| `cache`         | `true`        | `false`  | `boolean`                                              | If `false`, values will be stored directly in process.env object (as strings, under their literal key; object values and `registerAs` are not supported). <br> If `true`, values will be stored only in the memory.       |
+| `debug`         | `false`       | `false`  | `boolean`                                              | If `true`, module will log some internal process information.                                                                                                                                                             |
+| `isGlobal`      | `false`       | `false`  | `boolean`                                              | If `true`, registers `ExtendedConfigModule` as a global module.                                                                                                                                                           |
+| `preload`       | `false`       | `false`  | `boolean`                                              | If `true`, variables load will be done by the module and injected on service. This option is required if you need to inject the service on a custom provider and retrieve a variable before application is totally ready. |
+| `redact`        | defaults      | `false`  | `RedactOptions \| false`                               | How `toJSON()` and `console.log(service)` mask sensitive values: `{ keys?: (string \| RegExp)[], replacement?: string }`. `false` disables masking.                                                                       |
+| `onChange`      | -             | `false`  | `(event: ConfigChangeEvent) => void \| Promise<void>`  | Called after a load or reload changes at least one top-level key. Errors are logged and never break loading.                                                                                                              |
+| `onReloadError` | -             | `false`  | `(error: Error, identifier?) => void \| Promise<void>` | Called when a scheduled reload or `reload()` fails. Previously loaded values are kept.                                                                                                                                    |
 
 ### Strategies
 
 To keep everything as flexible as possible, `ExtendedConfigModule` works with an array of strategies, that are specialized objects in load environment variables. Each strategy has its own options, as described below:
 
-| Option             | Default value | Required | Type                                    | Description |
-| ------------------ | ------------- | -------- | --------------------------------------- | ----------- |
-| `loader`           | -             | `true`   | `LoaderClass \| LoaderMethod`           | Class or function responsible for loading environment variables for this strategy. Accepts a custom function or class with `load()` method. |
-| `identifier`       | -             | `false`  | `string \| Symbol`                      | Identify a strategy to allow module to manipulate it directly on helper functions. |
-| `disable`          | `false`       | `false`  | `boolean`                               | If `true`, this strategy will not be used. Useful to perform conditional strategy disabling. |
-| `options`          | -             | `false`  | `Record<string, any>`                   | Options passed to the loader class or function. |
-| `reloadable`       | `false`       | `false`  | `boolean`                               | If `false`, this strategy will not be called again when service, scheduler or interval requests a reload. |
-| `schedule`         | -             | `false`  | `string`                                | Schedules the strategy reload (if reloadable) using cron syntax. This feature may not work correctly with serverless functions. |
-| `scheduleTimezone` | -             | `false`  | `string`                                | Scheduler timezone as an IANA name, e.g. `America/Sao_Paulo`. |
-| `reloadInterval`   | -             | `false`  | `number \| string`                      | Reloads the strategy (if reloadable) at a fixed interval, as an alternative to `schedule`. Milliseconds or a string like `'30s'`, `'5m'`, `'1h'`. |
-| `retry`            | -             | `false`  | `RetryOptions`                          | Retries a failing loader with exponential backoff: `{ retries, delay = 1000, factor = 2, maxDelay = 30000 }`. Applies to the first load and to reloads. |
-| `registerAs`       | -             | `false`  | `string`                                | If set, all configuration will be set under the key passed on this variable. |
-| `transformer`      | -             | `false`  | `TransformerClass \| TransformerMethod` | Transforms the loaded variables. Accepts a function or a class with `transform()` method. |
-| `validator`        | -             | `false`  | `ValidatorClass \| ValidatorMethod`     | Validates the loaded variables. Accepts a function or a class with `validate()` method. |
+| Option             | Default value | Required | Type                                    | Description                                                                                                                                                                                       |
+| ------------------ | ------------- | -------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `loader`           | -             | `true`   | `LoaderClass \| LoaderMethod`           | Class or function responsible for loading environment variables for this strategy. Accepts a custom function or class with `load()` method.                                                       |
+| `identifier`       | -             | `false`  | `string \| Symbol`                      | Identify a strategy to allow module to manipulate it directly on helper functions.                                                                                                                |
+| `disable`          | `false`       | `false`  | `boolean`                               | If `true`, this strategy will not be used. Useful to perform conditional strategy disabling.                                                                                                      |
+| `options`          | -             | `false`  | `Record<string, any>`                   | Options passed to the loader class or function.                                                                                                                                                   |
+| `reloadable`       | `false`       | `false`  | `boolean`                               | If `false`, this strategy will not be called again when service, scheduler or interval requests a reload.                                                                                         |
+| `schedule`         | -             | `false`  | `string`                                | Schedules the strategy reload (if reloadable) using cron syntax. This feature may not work correctly with serverless functions.                                                                   |
+| `scheduleTimezone` | -             | `false`  | `string`                                | Scheduler timezone as an IANA name, e.g. `America/Sao_Paulo`.                                                                                                                                     |
+| `reloadInterval`   | -             | `false`  | `number \| string`                      | Reloads the strategy (if reloadable) at a fixed interval, as an alternative to `schedule`. Milliseconds or a string like `'30s'`, `'5m'`, `'1h'`.                                                 |
+| `retry`            | -             | `false`  | `RetryOptions`                          | Retries a failing loader with exponential backoff: `{ retries, delay = 1000, factor = 2, maxDelay = 30000 }`. Applies to the first load and to reloads.                                           |
+| `registerAs`       | -             | `false`  | `string`                                | If set, all configuration will be set under the key passed on this variable.                                                                                                                      |
+| `transformer`      | -             | `false`  | `TransformerClass \| TransformerMethod` | Transforms the loaded variables. Accepts a function or a class with `transform()` method.                                                                                                         |
+| `validator`        | -             | `false`  | `ValidatorClass \| ValidatorMethod`     | Validates the loaded variables. Accepts a function or a class with `validate()` method.                                                                                                           |
 | `schema`           | -             | `false`  | `StandardSchemaV1`                      | [Standard Schema](https://standardschema.dev) (Zod, Valibot, ArkType, ...) that validates and parses the variables after the validator and transformer. Its output replaces the loaded variables. |
 
 Reloads of the same strategy never overlap: a reload requested while another one is running for that strategy waits for it instead of calling the loader again. When a background reload (schedule or interval) fails, the error is logged, `onReloadError` is called and the previous values are kept.
@@ -114,7 +114,10 @@ Based on key use cases, `ExtendedConfigModule` has some pre-made loaders. To use
 ExtendedConfigModule.forRoot({
 	strategies: [
 		{ loader: yamlFileLoader, options: { path: 'config/default.yaml' } },
-		{ loader: jsonFileLoader, options: { path: 'config/local.json', optional: true } },
+		{
+			loader: jsonFileLoader,
+			options: { path: 'config/local.json', optional: true },
+		},
 	],
 });
 ```
@@ -163,9 +166,8 @@ await this.extendedConfigService.load(true);
 const dbUser = this.extendedConfigService.get<string>('DATABASE_USER');
 
 // get a proxy of an object from environment variable
-const appConfig = this.extendedConfigService.getProxyOf<
-	Record<string, unknown>
->('APP_CONFIG');
+const appConfig =
+	this.extendedConfigService.getProxyOf<Record<string, unknown>>('APP_CONFIG');
 
 // get a nested value using a dotted path
 const dbHost = this.extendedConfigService.get('database.host');
@@ -266,7 +268,8 @@ export class HealthController {
 	@HealthCheck()
 	check() {
 		return this.health.check([
-			() => this.configHealth.isHealthy('config', { maxConsecutiveFailures: 3 }),
+			() =>
+				this.configHealth.isHealthy('config', { maxConsecutiveFailures: 3 }),
 		]);
 	}
 }

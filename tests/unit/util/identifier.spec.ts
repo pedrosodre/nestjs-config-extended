@@ -21,7 +21,9 @@ describe('symbol identifiers', () => {
 		const service = new ExtendedConfigService<any>(
 			{
 				debug: true,
-				strategies: [{ identifier: Symbol('LOCAL'), loader: () => ({ A: '1' }) }],
+				strategies: [
+					{ identifier: Symbol('LOCAL'), loader: () => ({ A: '1' }) },
+				],
 			},
 			{ validate: jest.fn(), schedule: jest.fn() } as any,
 			logger,
@@ -29,7 +31,9 @@ describe('symbol identifiers', () => {
 
 		await service.load();
 		expect(
-			debugSpy.mock.calls.some(call => String(call[0]).includes('Symbol(LOCAL)')),
+			debugSpy.mock.calls.some(call =>
+				String(call[0]).includes('Symbol(LOCAL)'),
+			),
 		).toBe(true);
 	});
 });

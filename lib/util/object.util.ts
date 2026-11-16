@@ -1,7 +1,7 @@
 const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 export const setOn = <
-	T extends Record<string, unknown> = Record<string, unknown>
+	T extends Record<string, unknown> = Record<string, unknown>,
 >(
 	obj: Record<keyof T, unknown>,
 	path: number | symbol | string | string[],

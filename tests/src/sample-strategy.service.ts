@@ -3,7 +3,8 @@ import { LoaderClass, TransformerClass, ValidatorClass } from '../../lib';
 
 @Injectable()
 export class SampleStrategyService
-	implements LoaderClass, TransformerClass, ValidatorClass {
+	implements LoaderClass, TransformerClass, ValidatorClass
+{
 	load(): Record<string, any> {
 		return { test: 'strategy-class' };
 	}

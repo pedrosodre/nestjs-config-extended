@@ -27,7 +27,7 @@ export class ExtendedConfigFeatureModule {}
 		Logger,
 		{
 			provide: CRON_SCHEDULER,
-			useValue: (cron as unknown) as CronScheduler,
+			useValue: cron as unknown as CronScheduler,
 		},
 		{
 			provide: EXTENDED_CONFIG_OPTIONS,
@@ -109,9 +109,8 @@ export class ExtendedConfigModule {
 	 * @param namespaces one or more namespaces
 	 */
 	static forFeature(namespaces: string | string[]): DynamicModule {
-		const providers: Provider[] = (Array.isArray(namespaces)
-			? namespaces
-			: [namespaces]
+		const providers: Provider[] = (
+			Array.isArray(namespaces) ? namespaces : [namespaces]
 		).map(namespace => ({
 			provide: getConfigToken(namespace),
 			useFactory: async (service: ExtendedConfigService) => {

@@ -53,8 +53,9 @@ import { createConfigProxy } from './util/config-proxy.util';
 import { redactConfig } from './util/redact.util';
 
 @Injectable()
-export class ExtendedConfigService<K = Record<string, any>>
-	implements OnModuleDestroy {
+export class ExtendedConfigService<
+	K = Record<string, any>,
+> implements OnModuleDestroy {
 	private loaded: boolean = false;
 	private loadingPromise?: Promise<void>;
 	private cache: Record<string, any> = {};

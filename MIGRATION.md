@@ -45,6 +45,8 @@ After every load or reload, the configuration is rebuilt from the latest result 
 
 ### Messages and logs
 
+- All errors now extend `ExtendedConfigException`, have a specific `name`, expose the strategy `identifier` and keep the original error as `cause`. Messages are unchanged.
+
 - Exceptions and debug logs now work with `symbol` identifiers (1.x threw `TypeError: Cannot convert a Symbol value to a string`).
 - With `debug: true`, logs now include the names of loaded keys, never their values.
 

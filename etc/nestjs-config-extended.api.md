@@ -110,6 +110,23 @@ export interface DotEnvStrategyOptions {
 }
 
 // @public (undocumented)
+export abstract class ExtendedConfigException extends Error {
+    protected constructor(message: string, options?: ExtendedConfigExceptionOptions);
+    // (undocumented)
+    readonly cause?: unknown;
+    // (undocumented)
+    readonly identifier?: string | symbol;
+}
+
+// @public (undocumented)
+export interface ExtendedConfigExceptionOptions {
+    // (undocumented)
+    cause?: unknown;
+    // (undocumented)
+    identifier?: string | symbol;
+}
+
+// @public (undocumented)
 export class ExtendedConfigFeatureModule {
 }
 
@@ -238,27 +255,27 @@ export type InferConfig<Schema extends StandardSchemaV1> = StandardSchemaV1.Infe
 export const InjectConfig: (namespace: string) => ParameterDecorator & PropertyDecorator;
 
 // @public (undocumented)
-export class InvalidLoaderException extends Error {
+export class InvalidLoaderException extends ExtendedConfigException {
     constructor(identifier?: string | symbol);
 }
 
 // @public (undocumented)
-export class InvalidReloadIntervalException extends Error {
+export class InvalidReloadIntervalException extends ExtendedConfigException {
     constructor(reason: string, identifier?: string | symbol);
 }
 
 // @public (undocumented)
-export class InvalidScheduleException extends Error {
+export class InvalidScheduleException extends ExtendedConfigException {
     constructor(identifier?: string | symbol);
 }
 
 // @public (undocumented)
-export class InvalidTransformerException extends Error {
+export class InvalidTransformerException extends ExtendedConfigException {
     constructor(identifier?: string | symbol);
 }
 
 // @public (undocumented)
-export class InvalidValidatorException extends Error {
+export class InvalidValidatorException extends ExtendedConfigException {
     constructor(identifier?: string | symbol);
 }
 
@@ -277,19 +294,19 @@ export interface LoaderClass {
 export type LoaderMethod<T extends LoaderReturnValue = LoaderReturnValue> = (options?: Record<string, any>) => T;
 
 // @public (undocumented)
-export class LoadingException extends Error {
+export class LoadingException extends ExtendedConfigException {
     constructor(reason: Error | string, identifier?: string | symbol);
 }
 
 // @public (undocumented)
-export class MissingConfigException extends Error {
+export class MissingConfigException extends ExtendedConfigException {
     constructor(path: string);
     // (undocumented)
     readonly path: string;
 }
 
 // @public (undocumented)
-export class ProcessEnvAssignmentException extends Error {
+export class ProcessEnvAssignmentException extends ExtendedConfigException {
     constructor(reason: string, identifier?: string | symbol);
 }
 
@@ -320,7 +337,7 @@ export interface RetryOptions {
 }
 
 // @public (undocumented)
-export class SchemaValidationException extends Error {
+export class SchemaValidationException extends ExtendedConfigException {
     constructor(issues: ReadonlyArray<StandardSchemaV1.Issue>, identifier?: string | symbol);
     // (undocumented)
     readonly issues: ReadonlyArray<StandardSchemaV1.Issue>;
@@ -403,7 +420,7 @@ export interface StrategyStatus {
 }
 
 // @public (undocumented)
-export class TransformationException extends Error {
+export class TransformationException extends ExtendedConfigException {
     constructor(reason: Error | string, identifier?: string | symbol);
 }
 
@@ -417,7 +434,7 @@ export interface TransformerClass {
 export type TransformerMethod<T extends LoaderReturnValue = LoaderReturnValue> = (variables: Record<string, any>) => T;
 
 // @public (undocumented)
-export class ValidationException extends Error {
+export class ValidationException extends ExtendedConfigException {
     constructor(reason: Error | string, identifier?: string | symbol);
 }
 

@@ -1,3 +1,4 @@
+export * from './extended-config-exception';
 export * from './invalid-loader-exception';
 export * from './invalid-transformer-exception';
 export * from './invalid-validator-exception';

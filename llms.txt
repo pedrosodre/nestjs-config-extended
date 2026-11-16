@@ -94,7 +94,7 @@ Add `ExtendedConfigHealthIndicator` to a module's providers and call `this.confi
 
 ## Errors
 
-`LoadingException`, `ValidationException`, `TransformationException`, `SchemaValidationException` (with `issues`), `InvalidLoaderException`, `InvalidValidatorException`, `InvalidTransformerException`, `InvalidScheduleException`, `InvalidReloadIntervalException`, `ProcessEnvAssignmentException`, `MissingConfigException`.
+All errors extend `ExtendedConfigException` (with `name`, optional `identifier` and the original error as `cause`): `LoadingException`, `ValidationException`, `TransformationException`, `SchemaValidationException` (with `issues`), `InvalidLoaderException`, `InvalidValidatorException`, `InvalidTransformerException`, `InvalidScheduleException`, `InvalidReloadIntervalException`, `ProcessEnvAssignmentException`, `MissingConfigException`.
 
 ## Links
 

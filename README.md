@@ -302,6 +302,23 @@ export class HealthController {
 }
 ```
 
+### Errors
+
+Every error thrown by the module extends `ExtendedConfigException`, so one `instanceof` check catches them all. Errors have a specific `name` (`LoadingException`, `SchemaValidationException`, `MissingConfigException`, ...), the strategy's `identifier` when one is involved, and the original loader, validator or transformer error as `cause`:
+
+```typescript
+try {
+	await this.config.reload('REMOTE');
+} catch (error) {
+	if (error instanceof ExtendedConfigException) {
+		this.logger.error(
+			`${error.name} in ${String(error.identifier)}`,
+			error.cause,
+		);
+	}
+}
+```
+
 ### Typed configuration
 
 Pass your configuration type to the service to get autocompleted dotted paths and inferred return types (up to 5 levels deep). With a [schema](#schema-validation), use `InferConfig<typeof schema>`.

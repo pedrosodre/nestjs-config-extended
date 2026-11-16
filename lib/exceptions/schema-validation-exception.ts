@@ -1,3 +1,4 @@
+import { ExtendedConfigException } from './extended-config-exception';
 import { formatIdentifier } from '../util/identifier.util';
 import { StandardSchemaV1 } from '../interfaces/standard-schema.interface';
 
@@ -12,7 +13,7 @@ const formatPath = (issue: StandardSchemaV1.Issue): string =>
 		)
 		.join('.');
 
-export class SchemaValidationException extends Error {
+export class SchemaValidationException extends ExtendedConfigException {
 	readonly issues: ReadonlyArray<StandardSchemaV1.Issue>;
 
 	constructor(
@@ -28,8 +29,8 @@ export class SchemaValidationException extends Error {
 
 		super(
 			`${formatIdentifier(identifier)} strategy's variables do not match the schema: ${details}`,
+			{ identifier },
 		);
-		this.name = 'SchemaValidationException';
 		this.issues = issues;
 	}
 }

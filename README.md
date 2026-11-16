@@ -75,6 +75,7 @@ To customize module's configuration, you can setup few options by importing it u
 | `debug`      | `false`       | `false`  | `boolean`                | If `true`, module will log some internal process information.                                                                                                                                                             |
 | `isGlobal`   | `false`       | `false`  | `boolean`                | If `true`, registers `ExtendedConfigModule` as a global module.                                                                                                                                                           |
 | `preload`    | `false`       | `false`  | `boolean`                | If `true`, variables load will be done by the module and injected on service. This option is required if you need to inject the service on a custom provider and retrieve a variable before application is totally ready. |
+| `redact`        | defaults | `false`  | `RedactOptions \| false` | How `toJSON()` and `console.log(service)` mask sensitive values: `{ keys?: (string \| RegExp)[], replacement?: string }`. `false` disables masking. |
 | `onChange`      | -        | `false`  | `(event: ConfigChangeEvent) => void \| Promise<void>` | Called after a load or reload changes at least one top-level key. Errors are logged and never break loading. |
 | `onReloadError` | -        | `false`  | `(error: Error, identifier?) => void \| Promise<void>` | Called when a scheduled reload or `reload()` fails. Previously loaded values are kept. |
 
@@ -182,6 +183,21 @@ await this.extendedConfigService.reload();
 // reload environment variables for a specific strategy that allows reload
 await this.extendedConfigService.reload('STRATEGY_IDENTIFIER');
 ```
+
+### Printing configuration safely
+
+`JSON.stringify(service)`, `service.toJSON()` and `console.log(service)` return the loaded configuration with sensitive values masked. Keys matching password, secret, token, api key, private key, credential, session, cookie, salt or signature are replaced with `[REDACTED]`, and passwords embedded in URLs (`postgres://user:[REDACTED]@host`) are removed. Add your own keys with the `redact` option, or use `redactConfig()` directly:
+
+```typescript
+ExtendedConfigModule.forRoot({
+	strategies: [{ loader: processEnvLoader }],
+	redact: { keys: ['INTERNAL_ID', /^iban$/i] },
+});
+
+this.logger.log(`Config: ${JSON.stringify(this.config)}`);
+```
+
+With `debug: true`, logs only list the loaded key names, never their values.
 
 ### Injecting configuration namespaces
 

@@ -25,6 +25,7 @@ import {
 	RELOADING_VARIABLES_FROM_STRATEGY_BY_INTERVAL,
 	ON_CHANGE_HOOK_FAILED,
 	ON_RELOAD_ERROR_HOOK_FAILED,
+	LOADED_KEYS,
 } from './config.constants';
 import {
 	ConfigChangeEvent,
@@ -47,6 +48,7 @@ import { isDeepEqual } from './util/deep-equal.util';
 import { parseDuration } from './util/duration.util';
 import { cloneConfigValue } from './util/clone.util';
 import { createConfigProxy } from './util/config-proxy.util';
+import { redactConfig } from './util/redact.util';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>>
@@ -414,6 +416,17 @@ export class ExtendedConfigService<K = Record<string, any>>
 	}
 
 	/**
+	 * Returns a copy of the loaded configuration with sensitive values masked
+	 * (see the "redact" module option). Also used by JSON.stringify(service).
+	 */
+	toJSON(): Record<string, any> {
+		const { redact } = this.options;
+		return redact === false
+			? cloneConfigValue(this.current)
+			: redactConfig(this.current, redact);
+	}
+
+	/**
 	 * Emits an event every time a load or reload changes the configuration.
 	 */
 	changes(): Observable<ConfigChangeEvent> {
@@ -450,6 +463,12 @@ export class ExtendedConfigService<K = Record<string, any>>
 		if (!disable) {
 			const loadedVariables: Record<string, any> =
 				await this.retrieveVariables(strategy);
+
+			// Only key names are logged, never values.
+			this.debug(
+				`${LOADED_KEYS}: ${Object.keys(loadedVariables).join(', ')}`,
+				identifier,
+			);
 
 			if (this.isCacheEnabled) {
 				this.debug(ASSIGNING_VARIABLES_TO_CACHE, identifier);
@@ -639,3 +658,15 @@ export class ExtendedConfigService<K = Record<string, any>>
 		}
 	}
 }
+
+// Mask sensitive values when the service is printed with console.log or
+// util.inspect. Same symbol as util.inspect.custom.
+Object.defineProperty(
+	ExtendedConfigService.prototype,
+	Symbol.for('nodejs.util.inspect.custom'),
+	{
+		value(this: ExtendedConfigService) {
+			return this.toJSON();
+		},
+	},
+);

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigChangeEvent } from './config-change-event.interface';
 import { ConfigLoaderStrategy } from './config-loader-strategy.interface';
+import { RedactOptions } from './redact-options.interface';
 
 export interface ExtendedConfigModuleOptions {
 	/**
@@ -30,6 +31,12 @@ export interface ExtendedConfigModuleOptions {
 	 * If "true", service will log some internal process information.
 	 */
 	debug?: boolean;
+
+	/**
+	 * How sensitive values are masked by the service's toJSON() and util.inspect
+	 * (used by console.log). Set to "false" to disable masking.
+	 */
+	redact?: RedactOptions | false;
 
 	/**
 	 * Called after a load or reload changes at least one top-level key.

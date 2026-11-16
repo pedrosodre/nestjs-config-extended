@@ -16,6 +16,8 @@ export interface ExtendedConfigModuleOptions {
 
 	/**
 	 * If "false", values will be stored directly in process.env object.
+	 * In that mode values are stored as strings under their literal key, so only
+	 * string, number and boolean values are accepted and registerAs is not supported.
 	 * If "true", values will be stored only in the memory.
 	 * If you already have something on process.env and cache is enabled, you should add a strategy to load it.
 	 * Default value is "true", since it improves the overall application performance.

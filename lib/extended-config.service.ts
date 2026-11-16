@@ -27,7 +27,10 @@ import {
 	CronScheduler,
 	ExtendedConfigModuleOptions,
 } from './interfaces';
-import { InvalidScheduleException } from './exceptions';
+import {
+	InvalidScheduleException,
+	ProcessEnvAssignmentException,
+} from './exceptions';
 import { retrieveVariablesByStrategy } from './util/loader.util';
 import { isUndefined } from './util/is-undefined.util';
 
@@ -52,6 +55,18 @@ export class ExtendedConfigService<K = Record<string, any>>
 		@Inject(PRE_LOADED_VALUES)
 		preLoadedResults?: (Record<string, any> | undefined)[] | null,
 	) {
+		if (!this.isCacheEnabled) {
+			const withRegisterAs = (options.strategies || []).find(
+				strategy => strategy.registerAs && !strategy.disable,
+			);
+			if (withRegisterAs) {
+				throw new ProcessEnvAssignmentException(
+					'registerAs requires cache to be enabled',
+					withRegisterAs.identifier,
+				);
+			}
+		}
+
 		if (preLoadedResults) {
 			this.debug(VARIABLES_PRELOADED_BY_MODULE, ALL_STRATEGIES);
 
@@ -296,6 +311,11 @@ export class ExtendedConfigService<K = Record<string, any>>
 				this.debug(ASSIGNING_VARIABLES_TO_PROCESS_ENV, identifier);
 			}
 
+			if (!this.isCacheEnabled) {
+				// Validate before storing so an invalid result never becomes current.
+				this.toProcessEnvValues(strategy, loadedVariables);
+			}
+
 			const index = (this.options.strategies || []).indexOf(strategy);
 			this.results[index] = { ...loadedVariables };
 			this.applyResults();
@@ -339,19 +359,20 @@ export class ExtendedConfigService<K = Record<string, any>>
 			return;
 		}
 
-		const written = new Set<string>();
+		// process.env only holds strings, so values are written flat under their
+		// literal key (no path splitting) and must be primitives.
+		const envValues: Record<string, string> = {};
 		strategies.forEach((strategy, index) => {
 			const variables = this.results[index];
 			if (variables) {
-				for (const key of this.assignVariables(
-					process.env,
-					strategy,
-					variables,
-				)) {
-					written.add(key);
-				}
+				Object.assign(envValues, this.toProcessEnvValues(strategy, variables));
 			}
 		});
+
+		const written = new Set(Object.keys(envValues));
+		for (const key of written) {
+			process.env[key] = envValues[key];
+		}
 
 		for (const key of this.processEnvKeys) {
 			if (!written.has(key)) {
@@ -365,19 +386,46 @@ export class ExtendedConfigService<K = Record<string, any>>
 		target: Record<string, any>,
 		strategy: ConfigLoaderStrategy,
 		variables: Record<string, any>,
-	): string[] {
+	): void {
 		const { registerAs } = strategy;
 
 		if (registerAs) {
 			setOn(target, registerAs, variables);
-			return [registerAs];
+			return;
 		}
 
-		const keys = Object.keys(variables);
-		for (const key of keys) {
+		for (const key of Object.keys(variables)) {
 			setOn(target, key, variables[key]);
 		}
-		return keys;
+	}
+
+	private toProcessEnvValues(
+		strategy: ConfigLoaderStrategy,
+		variables: Record<string, any>,
+	): Record<string, string> {
+		const { identifier } = strategy;
+		const values: Record<string, string> = {};
+
+		for (const key of Object.keys(variables)) {
+			const value = variables[key];
+
+			if (value === undefined || value === null) {
+				continue;
+			}
+
+			if (!['string', 'number', 'boolean'].includes(typeof value)) {
+				throw new ProcessEnvAssignmentException(
+					`value of "${key}" is a ${
+						Array.isArray(value) ? 'array' : typeof value
+					}, only strings, numbers and booleans are supported`,
+					identifier,
+				);
+			}
+
+			values[key] = String(value);
+		}
+
+		return values;
 	}
 
 	private debug(message: string, identifier?: string | Symbol): void {

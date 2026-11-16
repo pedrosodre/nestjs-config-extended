@@ -33,3 +33,26 @@ describe('getProxyOf()', () => {
 		expect(service.getProxyOf('PORT')).toBe(1);
 	});
 });
+
+describe('config proxy printing', () => {
+	it('should print the current values with console.log / util.inspect', async () => {
+		const { inspect } = await import('util');
+		const loader = jest
+			.fn()
+			.mockResolvedValueOnce({ app: { name: 'a' } })
+			.mockResolvedValueOnce({ app: { name: 'b' } });
+		const service = new ExtendedConfigService<any>(
+			{ strategies: [{ identifier: 'A', loader, reloadable: true }] },
+			{ validate: jest.fn(), schedule: jest.fn() } as any,
+			new Logger(),
+		);
+		await service.load();
+
+		const app = service.getProxyOf('app');
+		expect(inspect(app)).toBe("{ name: 'a' }");
+
+		await service.reload('A');
+		expect(inspect(app)).toBe("{ name: 'b' }");
+		expect(Object.keys(app)).toEqual(['name']);
+	});
+});

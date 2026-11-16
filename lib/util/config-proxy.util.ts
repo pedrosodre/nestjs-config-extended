@@ -8,8 +8,19 @@ const asRecord = (value: unknown): Record<PropertyKey, unknown> =>
  * getter, so injected or cached references see reloaded configuration.
  * Supports property access, "in", Object.keys, spreading and JSON.stringify.
  */
-export const createConfigProxy = <T extends object>(getter: () => unknown): T =>
-	new Proxy({} as T, {
+export const createConfigProxy = <T extends object>(
+	getter: () => unknown,
+): T => {
+	// util.inspect (console.log) formats a proxy's target directly, bypassing the
+	// traps, so the target itself must know how to print the current value.
+	const target = {} as T;
+	Object.defineProperty(target, Symbol.for('nodejs.util.inspect.custom'), {
+		value: () => getter(),
+		configurable: true,
+		enumerable: false,
+	});
+
+	return new Proxy(target, {
 		get: (_target, property) => asRecord(getter())[property as string],
 		has: (_target, property) => property in asRecord(getter()),
 		ownKeys: () => Reflect.ownKeys(asRecord(getter())),
@@ -29,3 +40,4 @@ export const createConfigProxy = <T extends object>(getter: () => unknown): T =>
 		deleteProperty: () => false,
 		defineProperty: () => false,
 	});
+};

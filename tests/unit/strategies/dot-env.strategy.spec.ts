@@ -35,4 +35,28 @@ describe('[Strategy] Dot Env', () => {
 		expect(variables.PORT).toBe('3000');
 		expect(variables.BASE_URL).toBe('http://127.0.0.1:3000');
 	});
+
+	it('dotEnvLoader() should not write expanded variables into process.env', () => {
+		const before = { ...process.env };
+		const variables = dotEnvLoader({
+			path: join(__dirname, '.env'),
+			expandVariables: true,
+		});
+
+		expect(variables.BASE_URL).toBe('http://127.0.0.1:3000');
+		expect(process.env.PORT).toBe(before.PORT);
+		expect(process.env.BASE_URL).toBe(before.BASE_URL);
+		expect(process.env).toEqual(before);
+	});
+
+	it('dotEnvLoader() should still expand references to existing process.env values', () => {
+		process.env.DOT_ENV_SPEC_HOST = 'example.com';
+		const variables = dotEnvLoader({
+			path: join(__dirname, '.env.process'),
+			expandVariables: true,
+		});
+		delete process.env.DOT_ENV_SPEC_HOST;
+
+		expect(variables.URL).toBe('https://example.com');
+	});
 });

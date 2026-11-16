@@ -1,6 +1,6 @@
 import { DotEnvStrategyOptions } from './dot-env.interface';
 import * as dotenv from 'dotenv';
-import dotenvExpand from 'dotenv-expand';
+import { expand } from 'dotenv-expand';
 import * as fs from 'fs';
 import { resolve } from 'path';
 
@@ -22,7 +22,12 @@ export const dotEnvLoader = (
 			);
 
 			if (options?.expandVariables) {
-				config = dotenvExpand({ parsed: config }).parsed || config;
+				// Expand against a copy of process.env so expansion never mutates it.
+				config =
+					expand({
+						parsed: config,
+						processEnv: { ...process.env } as Record<string, string>,
+					}).parsed || config;
 			}
 		}
 	}

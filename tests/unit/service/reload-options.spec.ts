@@ -47,7 +47,7 @@ describe('reloadInterval', () => {
 	});
 
 	it('should reload at the configured interval and stop on destroy', async () => {
-		jest.useFakeTimers('modern');
+		jest.useFakeTimers();
 		const loader = jest
 			.fn()
 			.mockResolvedValueOnce({ KEY: '1' })
@@ -66,7 +66,7 @@ describe('reloadInterval', () => {
 		expect(service.get('KEY')).toBe('2');
 		expect(loader).toHaveBeenCalledTimes(2);
 
-		jest.useFakeTimers('modern');
+		jest.useFakeTimers();
 		service.onModuleDestroy();
 		jest.advanceTimersByTime(20000);
 		expect(loader).toHaveBeenCalledTimes(2);

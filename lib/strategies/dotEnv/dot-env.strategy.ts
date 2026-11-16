@@ -17,7 +17,11 @@ export const dotEnvLoader = (
 	for (const envFilePath of envFilePaths) {
 		if (fs.existsSync(envFilePath)) {
 			config = Object.assign(
-				dotenv.parse(fs.readFileSync(envFilePath, options?.encoding || null)),
+				dotenv.parse(
+					options?.encoding
+						? fs.readFileSync(envFilePath, options.encoding as BufferEncoding)
+						: fs.readFileSync(envFilePath),
+				),
 				config,
 			);
 

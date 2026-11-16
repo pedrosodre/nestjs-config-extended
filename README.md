@@ -98,10 +98,21 @@ To keep everything as flexible as possible, `ExtendedConfigModule` works with an
 
 #### Pre-made loaders
 
-Based on key use cases, `ExtendedConfigModule` has two pre-made loaders. To use them you simply need to import and refer it on strategy's `loader` option.
+Based on key use cases, `ExtendedConfigModule` has some pre-made loaders. To use them you simply need to import and refer it on strategy's `loader` option.
 
 - `processEnvLoader`: loads variables from node's `process.env`.
 - `dotEnvLoader`: loads variables from `.env` files, based on loader options. You can specify file(s) `path` and `encoding`, and enable `expandVariables`.
+- `jsonFileLoader`: loads variables from a JSON file. Options: `path` (required, relative to `process.cwd()`), `encoding` and `optional` (a missing file loads nothing instead of failing).
+- `yamlFileLoader`: loads variables from a YAML file, with the same options. Requires the optional [`yaml`](https://www.npmjs.com/package/yaml) package (`npm install yaml`).
+
+```typescript
+ExtendedConfigModule.forRoot({
+	strategies: [
+		{ loader: yamlFileLoader, options: { path: 'config/default.yaml' } },
+		{ loader: jsonFileLoader, options: { path: 'config/local.json', optional: true } },
+	],
+});
+```
 
 #### Schema validation
 

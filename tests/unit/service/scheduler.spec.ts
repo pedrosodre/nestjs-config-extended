@@ -39,4 +39,39 @@ describe('ExtendedConfigService scheduler', () => {
 		service.onModuleDestroy();
 		expect(task.destroy).toHaveBeenCalledTimes(1);
 	});
+
+	it('should log scheduled reload failures and keep previous values', async () => {
+		const { scheduler } = createScheduler();
+		const logger = new Logger();
+		const errorSpy = jest.spyOn(logger, 'error').mockImplementation(() => {});
+		const loader = jest
+			.fn()
+			.mockResolvedValueOnce({ KEY: 'value' })
+			.mockRejectedValueOnce(new Error('remote down'));
+
+		const service = new ExtendedConfigService(
+			{
+				strategies: [
+					{
+						identifier: 'TEST',
+						loader,
+						reloadable: true,
+						schedule: '* * * * *',
+					},
+				],
+			},
+			scheduler as any,
+			logger,
+		);
+
+		await service.load();
+		const scheduledTask = scheduler.schedule.mock.calls[0][1];
+
+		await expect(scheduledTask()).resolves.toBeUndefined();
+		expect(errorSpy).toHaveBeenCalledWith(
+			expect.stringContaining('TEST'),
+			expect.stringContaining('remote down'),
+		);
+		expect(service.get('KEY')).toBe('value');
+	});
 });

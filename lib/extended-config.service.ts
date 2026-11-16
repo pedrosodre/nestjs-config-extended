@@ -19,6 +19,7 @@ import {
 	LOAD_REQUEST_IGNORED_DUE_IN_PROGRESS,
 	VARIABLES_PRELOADED_BY_MODULE,
 	DEBUG_LOG_PREFIX,
+	SCHEDULED_RELOAD_FAILED,
 } from './config.constants';
 import {
 	ConfigLoaderStrategy,
@@ -227,7 +228,18 @@ export class ExtendedConfigService<K = Record<string, any>>
 						RELOADING_VARIABLES_FROM_STRATEGY_BY_SCHEDULER,
 						identifier,
 					);
-					await this.loadVariablesByStrategy(strategy);
+					try {
+						await this.loadVariablesByStrategy(strategy);
+					} catch (err) {
+						// Keep the last loaded values and report through the Nest logger
+						// instead of letting node-cron print to console.error.
+						this.logger.error(
+							`${DEBUG_LOG_PREFIX} ${
+								identifier || NOT_IDENTIFIED
+							}: ${SCHEDULED_RELOAD_FAILED}`,
+							(err as Error)?.stack || String(err),
+						);
+					}
 				},
 				{
 					scheduled: true,

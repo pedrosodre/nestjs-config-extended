@@ -49,7 +49,7 @@ export const retrieveVariablesByStrategy = async (
 			throw err;
 		}
 
-		throw new LoadingException(err, identifier);
+		throw new LoadingException(err as Error, identifier);
 	}
 
 	await validateVariablesByStrategy(strategy, loadedVariables, debug);

@@ -59,6 +59,8 @@ export class ExtendedConfigService<K = Record<string, any>>
 	private processEnvKeys = new Set<string>();
 	private readonly scheduledTasks: CronScheduledTask[] = [];
 	private readonly intervals: ReturnType<typeof setInterval>[] = [];
+	/** Strategies (by index) whose background reload is already configured. */
+	private readonly configuredSchedulers = new Set<number>();
 	/** In-flight load of each strategy, so reloads never overlap. */
 	private readonly inFlight = new Map<number, Promise<void>>();
 	/** Merged view of the configuration, used to detect changes. */
@@ -269,7 +271,8 @@ export class ExtendedConfigService<K = Record<string, any>>
 			disable,
 		} = strategy;
 
-		if (disable || !reloadable) {
+		const index = (this.options.strategies || []).indexOf(strategy);
+		if (disable || !reloadable || this.configuredSchedulers.has(index)) {
 			return;
 		}
 
@@ -324,6 +327,8 @@ export class ExtendedConfigService<K = Record<string, any>>
 			timer.unref?.();
 			this.intervals.push(timer);
 		}
+
+		this.configuredSchedulers.add(index);
 	}
 
 	private async runBackgroundReload(

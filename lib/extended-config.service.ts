@@ -1,4 +1,6 @@
 import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import getFrom from 'lodash.get';
 import hasOn from 'lodash.has';
 import { setOn } from './util/object.util';
@@ -20,8 +22,11 @@ import {
 	VARIABLES_PRELOADED_BY_MODULE,
 	DEBUG_LOG_PREFIX,
 	SCHEDULED_RELOAD_FAILED,
+	ON_CHANGE_HOOK_FAILED,
+	ON_RELOAD_ERROR_HOOK_FAILED,
 } from './config.constants';
 import {
+	ConfigChangeEvent,
 	ConfigLoaderStrategy,
 	ConfigPath,
 	ConfigPathValue,
@@ -36,6 +41,7 @@ import {
 } from './exceptions';
 import { retrieveVariablesByStrategy } from './util/loader.util';
 import { isUndefined } from './util/is-undefined.util';
+import { isDeepEqual } from './util/deep-equal.util';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>>
@@ -48,6 +54,10 @@ export class ExtendedConfigService<K = Record<string, any>>
 	/** Top-level keys this service wrote to process.env (cache disabled). */
 	private processEnvKeys = new Set<string>();
 	private readonly scheduledTasks: CronScheduledTask[] = [];
+	/** Merged view of the configuration, used to detect changes. */
+	private current: Record<string, any> = {};
+	private readonly version$ = new BehaviorSubject<number>(0);
+	private readonly changes$ = new Subject<ConfigChangeEvent>();
 
 	constructor(
 		@Inject(EXTENDED_CONFIG_OPTIONS)
@@ -269,6 +279,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 							}: ${SCHEDULED_RELOAD_FAILED}`,
 							(err as Error)?.stack || String(err),
 						);
+						await this.handleReloadError(err, identifier);
 					}
 				},
 				{
@@ -290,6 +301,8 @@ export class ExtendedConfigService<K = Record<string, any>>
 		for (const task of this.scheduledTasks.splice(0)) {
 			task.destroy();
 		}
+		this.changes$.complete();
+		this.version$.complete();
 	}
 
 	/**
@@ -298,20 +311,48 @@ export class ExtendedConfigService<K = Record<string, any>>
 	 * @param strategyIdentifier optional strategy's identifier to allow reload environment variables from a single strategy.
 	 */
 	async reload(strategyIdentifier?: string | Symbol): Promise<void> {
-		if (strategyIdentifier) {
-			const strategy = this.options.strategies?.filter(
-				singleStrategy => singleStrategy.identifier === strategyIdentifier,
-			)?.[0];
+		try {
+			if (strategyIdentifier) {
+				const strategy = this.options.strategies?.find(
+					singleStrategy => singleStrategy.identifier === strategyIdentifier,
+				);
 
-			if (strategy?.reloadable) {
-				this.debug(STARTING_RELOAD, strategy.identifier);
-				await this.loadVariablesByStrategy(strategy);
+				if (strategy?.reloadable) {
+					this.debug(STARTING_RELOAD, strategy.identifier);
+					await this.loadVariablesByStrategy(strategy);
+				}
+			} else {
+				this.debug(STARTING_RELOAD, ALL_STRATEGIES);
+				const onlyReloadable = true;
+				await this.loadVariables(onlyReloadable);
 			}
-		} else {
-			this.debug(STARTING_RELOAD, ALL_STRATEGIES);
-			const onlyReloadable = true;
-			await this.loadVariables(onlyReloadable);
+		} catch (err) {
+			await this.handleReloadError(err, strategyIdentifier);
+			throw err;
 		}
+	}
+
+	/**
+	 * Emits the value at a key or dotted path now and every time it changes.
+	 *
+	 * @param propertyPath property path (key) to watch.
+	 */
+	watch<P extends ConfigPath<K>>(
+		propertyPath: P,
+	): Observable<ConfigPathValue<K, P> | undefined>;
+	watch<T = any>(propertyPath: ConfigPath<K>): Observable<T | undefined>;
+	watch(propertyPath: ConfigPath<K>): Observable<any> {
+		return this.version$.pipe(
+			map(() => this.get(propertyPath)),
+			distinctUntilChanged(isDeepEqual),
+		);
+	}
+
+	/**
+	 * Emits an event every time a load or reload changes the configuration.
+	 */
+	changes(): Observable<ConfigChangeEvent> {
+		return this.changes$.asObservable();
 	}
 
 	private async loadVariablesByStrategy(
@@ -336,7 +377,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 
 			const index = (this.options.strategies || []).indexOf(strategy);
 			this.results[index] = { ...loadedVariables };
-			this.applyResults();
+			this.applyResults(identifier);
 		} else {
 			this.debug(NOT_LOADED_STRATEGY_DISABLED, identifier);
 		}
@@ -362,7 +403,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 	 * in declaration order. This keeps precedence stable (later strategies win)
 	 * and drops keys that a reloaded strategy no longer returns.
 	 */
-	private applyResults(): void {
+	private applyResults(identifier?: string | Symbol): void {
 		const strategies = this.options.strategies || [];
 
 		if (this.isCacheEnabled) {
@@ -374,6 +415,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 				}
 			});
 			this.cache = next;
+			this.notifyChanges(next, identifier);
 			return;
 		}
 
@@ -398,6 +440,61 @@ export class ExtendedConfigService<K = Record<string, any>>
 			}
 		}
 		this.processEnvKeys = written;
+		this.notifyChanges(envValues, identifier);
+	}
+
+	private notifyChanges(
+		next: Record<string, any>,
+		identifier?: string | Symbol,
+	): void {
+		const previous = this.current;
+		this.current = next;
+
+		const keys = new Set([...Object.keys(previous), ...Object.keys(next)]);
+		const changedKeys = [...keys].filter(
+			key => !isDeepEqual(previous[key], next[key]),
+		);
+
+		if (!changedKeys.length) {
+			return;
+		}
+
+		const event: ConfigChangeEvent = {
+			reason: this.isLoaded ? 'reload' : 'load',
+			identifier,
+			changedKeys,
+		};
+
+		this.version$.next(this.version$.value + 1);
+		this.changes$.next(event);
+		this.runHook(ON_CHANGE_HOOK_FAILED, identifier, () =>
+			this.options.onChange?.(event),
+		);
+	}
+
+	private async handleReloadError(
+		error: unknown,
+		identifier?: string | Symbol,
+	): Promise<void> {
+		const err = error instanceof Error ? error : new Error(String(error));
+		await this.runHook(ON_RELOAD_ERROR_HOOK_FAILED, identifier, () =>
+			this.options.onReloadError?.(err, identifier),
+		);
+	}
+
+	private async runHook(
+		failureMessage: string,
+		identifier: string | Symbol | undefined,
+		hook: () => void | Promise<void> | undefined,
+	): Promise<void> {
+		try {
+			await hook();
+		} catch (err) {
+			this.logger.error(
+				`${DEBUG_LOG_PREFIX} ${identifier || NOT_IDENTIFIED}: ${failureMessage}`,
+				(err as Error)?.stack || String(err),
+			);
+		}
 	}
 
 	private assignVariables(

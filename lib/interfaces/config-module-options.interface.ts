@@ -5,6 +5,7 @@ import {
 	ForwardReference,
 	Abstract,
 } from '@nestjs/common';
+import { ConfigChangeEvent } from './config-change-event.interface';
 import { ConfigLoaderStrategy } from './config-loader-strategy.interface';
 
 export interface ExtendedConfigModuleOptions {
@@ -29,6 +30,21 @@ export interface ExtendedConfigModuleOptions {
 	 * If "true", service will log some internal process information.
 	 */
 	debug?: boolean;
+
+	/**
+	 * Called after a load or reload changes at least one top-level key.
+	 * Errors thrown by this hook are logged and do not affect loading.
+	 */
+	onChange?: (event: ConfigChangeEvent) => void | Promise<void>;
+
+	/**
+	 * Called when a reload fails (scheduled or through reload()).
+	 * The previously loaded values are kept.
+	 */
+	onReloadError?: (
+		error: Error,
+		identifier?: string | Symbol,
+	) => void | Promise<void>;
 }
 
 export interface ExtendedConfigModuleSyncOptions

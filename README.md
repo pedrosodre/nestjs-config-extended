@@ -75,6 +75,8 @@ To customize module's configuration, you can setup few options by importing it u
 | `debug`      | `false`       | `false`  | `boolean`                | If `true`, module will log some internal process information.                                                                                                                                                             |
 | `isGlobal`   | `false`       | `false`  | `boolean`                | If `true`, registers `ExtendedConfigModule` as a global module.                                                                                                                                                           |
 | `preload`    | `false`       | `false`  | `boolean`                | If `true`, variables load will be done by the module and injected on service. This option is required if you need to inject the service on a custom provider and retrieve a variable before application is totally ready. |
+| `onChange`      | -        | `false`  | `(event: ConfigChangeEvent) => void \| Promise<void>` | Called after a load or reload changes at least one top-level key. Errors are logged and never break loading. |
+| `onReloadError` | -        | `false`  | `(error: Error, identifier?) => void \| Promise<void>` | Called when a scheduled reload or `reload()` fails. Previously loaded values are kept. |
 
 ### Strategies
 
@@ -164,6 +166,20 @@ await this.extendedConfigService.reload();
 // reload environment variables for a specific strategy that allows reload
 await this.extendedConfigService.reload('STRATEGY_IDENTIFIER');
 ```
+
+### Reacting to changes
+
+Reloads (manual or scheduled) can change values while the application runs. `watch()` emits the current value of a key or dotted path and then every distinct change, and `changes()` emits an event with the top-level keys that changed:
+
+```typescript
+// emits now and on every distinct change
+this.config.watch('database.host').subscribe(host => this.reconnect(host));
+
+// { reason: 'load' | 'reload', identifier, changedKeys: string[] }
+this.config.changes().subscribe(event => this.logger.log(event.changedKeys));
+```
+
+Both observables complete when the application shuts down. The same information is available through the `onChange` and `onReloadError` module options.
 
 ### Typed configuration
 

@@ -50,7 +50,7 @@ describe('With strategy using functions', () => {
 		expect(loader).toHaveBeenCalledTimes(2); // Should be called by scheduler aswell, to validate task function
 		expect(cron.validate).toBeCalledWith(schedule);
 		expect(cron.schedule).toBeCalledWith(schedule, expect.any(Function), {
-			scheduled: true,
+			timezone: undefined,
 		});
 
 		const service: ExtendedConfigService = app.get(ExtendedConfigService);

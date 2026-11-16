@@ -75,7 +75,7 @@
     "lodash.get": "4.4.2",
     "lodash.has": "4.5.2",
     "lodash.isfunction": "^3.0.9",
-    "node-cron": "^2.0.3"
+    "node-cron": "4.6.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
@@ -92,7 +92,6 @@
     "@types/lodash.has": "4.5.6",
     "@types/lodash.isfunction": "^3.0.6",
     "@types/node": "22.20.5",
-    "@types/node-cron": "^2.0.3",
     "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
     "husky": "9.1.7",

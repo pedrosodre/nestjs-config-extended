@@ -308,10 +308,7 @@ export class ExtendedConfigService<
 						strategy,
 						RELOADING_VARIABLES_FROM_STRATEGY_BY_SCHEDULER,
 					),
-				{
-					scheduled: true,
-					timezone: scheduleTimezone,
-				},
+				{ timezone: scheduleTimezone },
 			);
 
 			if (task) {

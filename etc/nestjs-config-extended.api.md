@@ -76,13 +76,11 @@ export interface ConfigStatus {
 // @public (undocumented)
 export interface CronScheduledTask {
     // (undocumented)
-    destroy(): void;
+    destroy(): void | Promise<void>;
 }
 
 // @public (undocumented)
 export interface CronScheduleOptions {
-    // (undocumented)
-    scheduled?: boolean;
     // (undocumented)
     timezone?: string;
 }

@@ -3,11 +3,13 @@
  * Kept local so published typings do not depend on node-cron's types.
  */
 export interface CronScheduledTask {
-	destroy(): void;
+	destroy(): void | Promise<void>;
 }
 
 export interface CronScheduleOptions {
-	scheduled?: boolean;
+	/**
+	 * IANA timezone name, e.g. "America/Sao_Paulo".
+	 */
 	timezone?: string;
 }
 

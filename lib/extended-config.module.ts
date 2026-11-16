@@ -12,7 +12,6 @@ import {
 } from './interfaces';
 import * as cron from 'node-cron';
 import { retrieveVariablesByStrategy } from './util/loader.util';
-import { setOn } from './util/object.util';
 
 @Module({
 	providers: [
@@ -42,33 +41,19 @@ export class ExtendedConfigModule {
 	static async forRoot(
 		options: ExtendedConfigModuleSyncOptions,
 	): Promise<DynamicModule> {
-		let preLoadedVariables: Record<string, any> | null = null;
+		// Results are kept per strategy (same order as options.strategies) so the
+		// service can rebuild the configuration exactly as it does on reload.
+		let preLoadedResults: (Record<string, any> | undefined)[] | null = null;
 
 		if (options?.preload) {
-			preLoadedVariables = {};
+			preLoadedResults = [];
 
 			for (const strategy of options.strategies || []) {
-				const { registerAs, disable } = strategy;
-
-				if (!disable) {
-					const variables = await retrieveVariablesByStrategy(strategy);
-
-					if (registerAs) {
-						setOn(
-							preLoadedVariables as Record<string, any>,
-							registerAs,
-							variables,
-						);
-					} else {
-						Object.keys(variables).forEach((key: string) => {
-							setOn(
-								preLoadedVariables as Record<string, any>,
-								key,
-								variables[key],
-							);
-						});
-					}
-				}
+				preLoadedResults.push(
+					strategy.disable
+						? undefined
+						: { ...(await retrieveVariablesByStrategy(strategy)) },
+				);
 			}
 		}
 
@@ -82,7 +67,7 @@ export class ExtendedConfigModule {
 				},
 				{
 					provide: PRE_LOADED_VALUES,
-					useValue: preLoadedVariables,
+					useValue: preLoadedResults,
 				},
 				ExtendedConfigService,
 			],

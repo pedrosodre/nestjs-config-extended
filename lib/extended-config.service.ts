@@ -36,7 +36,11 @@ export class ExtendedConfigService<K = Record<string, any>>
 	implements OnModuleDestroy {
 	private loaded: boolean = false;
 	private loadingPromise?: Promise<void>;
-	private readonly cache: Record<string, any> = {};
+	private cache: Record<string, any> = {};
+	/** Last successfully loaded variables of each strategy, by strategy index. */
+	private results: (Record<string, any> | undefined)[] = [];
+	/** Top-level keys this service wrote to process.env (cache disabled). */
+	private processEnvKeys = new Set<string>();
 	private readonly scheduledTasks: CronScheduledTask[] = [];
 
 	constructor(
@@ -45,14 +49,14 @@ export class ExtendedConfigService<K = Record<string, any>>
 		@Inject(CRON_SCHEDULER)
 		private readonly scheduler: CronScheduler,
 		private readonly logger: Logger,
-		@Inject(PRE_LOADED_VALUES) preLoadedValues?: Record<string, any>,
+		@Inject(PRE_LOADED_VALUES)
+		preLoadedResults?: (Record<string, any> | undefined)[] | null,
 	) {
-		if (preLoadedValues) {
+		if (preLoadedResults) {
 			this.debug(VARIABLES_PRELOADED_BY_MODULE, ALL_STRATEGIES);
 
-			for (const key of Object.keys(preLoadedValues)) {
-				this.set(key as any, preLoadedValues[key]);
-			}
+			this.results = [...preLoadedResults];
+			this.applyResults();
 			this.isLoaded = true;
 
 			this.configureSchedulerOnPreload();
@@ -179,14 +183,6 @@ export class ExtendedConfigService<K = Record<string, any>>
 		}
 	}
 
-	private set<T = any>(propertyPath: keyof K, value: T): void {
-		if (this.isCacheEnabled) {
-			setOn(this.cache, propertyPath, value);
-		} else {
-			setOn(process.env, propertyPath, value);
-		}
-	}
-
 	private get isCacheEnabled(): boolean {
 		return this.options.cache === false ? this.options.cache : true;
 	}
@@ -294,7 +290,15 @@ export class ExtendedConfigService<K = Record<string, any>>
 			const loadedVariables: Record<string, any> =
 				await this.retrieveVariables(strategy);
 
-			this.assignVariables(strategy, loadedVariables);
+			if (this.isCacheEnabled) {
+				this.debug(ASSIGNING_VARIABLES_TO_CACHE, identifier);
+			} else {
+				this.debug(ASSIGNING_VARIABLES_TO_PROCESS_ENV, identifier);
+			}
+
+			const index = (this.options.strategies || []).indexOf(strategy);
+			this.results[index] = { ...loadedVariables };
+			this.applyResults();
 		} else {
 			this.debug(NOT_LOADED_STRATEGY_DISABLED, identifier);
 		}
@@ -315,25 +319,65 @@ export class ExtendedConfigService<K = Record<string, any>>
 		);
 	}
 
-	private assignVariables(
-		strategy: ConfigLoaderStrategy,
-		variables: Record<string, any>,
-	): void {
-		const { registerAs, identifier } = strategy;
+	/**
+	 * Rebuilds the whole configuration from the latest result of every strategy,
+	 * in declaration order. This keeps precedence stable (later strategies win)
+	 * and drops keys that a reloaded strategy no longer returns.
+	 */
+	private applyResults(): void {
+		const strategies = this.options.strategies || [];
 
 		if (this.isCacheEnabled) {
-			this.debug(ASSIGNING_VARIABLES_TO_CACHE, identifier);
-		} else {
-			this.debug(ASSIGNING_VARIABLES_TO_PROCESS_ENV, identifier);
+			const next: Record<string, any> = {};
+			strategies.forEach((strategy, index) => {
+				const variables = this.results[index];
+				if (variables) {
+					this.assignVariables(next, strategy, variables);
+				}
+			});
+			this.cache = next;
+			return;
 		}
 
-		if (registerAs) {
-			this.set(registerAs as keyof K, variables);
-		} else {
-			Object.keys(variables).forEach((key: string) => {
-				this.set(key as keyof K, variables[key]);
-			});
+		const written = new Set<string>();
+		strategies.forEach((strategy, index) => {
+			const variables = this.results[index];
+			if (variables) {
+				for (const key of this.assignVariables(
+					process.env,
+					strategy,
+					variables,
+				)) {
+					written.add(key);
+				}
+			}
+		});
+
+		for (const key of this.processEnvKeys) {
+			if (!written.has(key)) {
+				delete process.env[key];
+			}
 		}
+		this.processEnvKeys = written;
+	}
+
+	private assignVariables(
+		target: Record<string, any>,
+		strategy: ConfigLoaderStrategy,
+		variables: Record<string, any>,
+	): string[] {
+		const { registerAs } = strategy;
+
+		if (registerAs) {
+			setOn(target, registerAs, variables);
+			return [registerAs];
+		}
+
+		const keys = Object.keys(variables);
+		for (const key of keys) {
+			setOn(target, key, variables[key]);
+		}
+		return keys;
 	}
 
 	private debug(message: string, identifier?: string | Symbol): void {

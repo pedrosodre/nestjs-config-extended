@@ -103,7 +103,7 @@ describe('With strategy using functions', () => {
 		expect(validator).toHaveBeenCalledTimes(1);
 
 		const service = app.get<ExtendedConfigService>(ExtendedConfigService);
-		expect(service.get('key')).toBe(variables);
+		expect(service.get('key')).toEqual(variables);
 	});
 
 	it(`should load, validate and transform variables from strategy using functions without identifier`, async () => {

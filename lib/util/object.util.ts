@@ -1,3 +1,5 @@
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 export const setOn = <
 	T extends Record<string, unknown> = Record<string, unknown>
 >(
@@ -12,6 +14,8 @@ export const setOn = <
 		: String(path).match(validPathCharactersRegex);
 
 	if (!pathArray) return obj;
+
+	if (pathArray.some(key => UNSAFE_KEYS.has(String(key)))) return obj;
 
 	let nestedObj = obj;
 	for (let i = 0; i < pathArray.length; i++) {

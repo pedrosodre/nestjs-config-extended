@@ -14,3 +14,13 @@ test('should allow setting nested array paths', () => {
 	// @ts-expect-error
 	expect(obj.a.b).toEqual([{ c: 1 }, { c: 2 }]);
 });
+
+test.each(['__proto__.polluted', 'constructor.prototype.polluted', [
+	'__proto__',
+	'polluted',
+]])('should ignore prototype-polluting path %p', path => {
+	const obj = {};
+	setOn(obj, path as string | string[], 'yes');
+	expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+	expect(Object.prototype.hasOwnProperty('polluted')).toBe(false);
+});

@@ -183,6 +183,36 @@ await this.extendedConfigService.reload();
 await this.extendedConfigService.reload('STRATEGY_IDENTIFIER');
 ```
 
+### Injecting configuration namespaces
+
+Register namespaces (a strategy's `registerAs` key or any object path) with `forFeature()` and inject them with `@InjectConfig()`. The root module must be global. The injection waits for the first load, so `preload` is not required, and the injected object is a read-only proxy that always reflects reloaded values:
+
+```typescript
+@Module({
+	imports: [
+		ExtendedConfigModule.forRoot({
+			isGlobal: true,
+			strategies: [{ loader: databaseLoader, registerAs: 'database' }],
+		}),
+		DatabaseModule,
+	],
+})
+export class AppModule {}
+
+@Module({
+	imports: [ExtendedConfigModule.forFeature('database')],
+	providers: [DatabaseService],
+})
+export class DatabaseModule {}
+
+@Injectable()
+export class DatabaseService {
+	constructor(@InjectConfig('database') private readonly db: DatabaseConfig) {}
+}
+```
+
+`getConfigToken('database')` returns the injection token, for example to use it in other providers' `inject` arrays.
+
 ### Reacting to changes
 
 Reloads (manual or scheduled) can change values while the application runs. `watch()` emits the current value of a key or dotted path and then every distinct change, and `changes()` emits an event with the top-level keys that changed:
@@ -216,7 +246,7 @@ this.config.get('database.nope'); // compile error
 
 Untyped services keep accepting any string and explicit type arguments such as `get<string>('KEY')`.
 
-> :warning: **Important:** `getProxyOf()` method only returns a proxy when returned value is an object, in any other cases, it will return the value directly. If you need a non-object value from the proxy, try encapsulate it with a transformer.
+> :warning: **Important:** `getProxyOf()` method only returns a proxy when returned value is an object, in any other cases, it will return the value directly. The proxy is read-only and supports property access, `in`, `Object.keys()`, spreading and `JSON.stringify()`.
 
 ## Full example
 

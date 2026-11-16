@@ -46,6 +46,7 @@ import { isUndefined } from './util/is-undefined.util';
 import { isDeepEqual } from './util/deep-equal.util';
 import { parseDuration } from './util/duration.util';
 import { cloneConfigValue } from './util/clone.util';
+import { createConfigProxy } from './util/config-proxy.util';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>>
@@ -206,18 +207,9 @@ export class ExtendedConfigService<K = Record<string, any>>
 	getProxyOf(propertyPath: ConfigPath<K>, defaultValue?: unknown): any {
 		const baseTarget = this.get(propertyPath, defaultValue);
 
-		if (baseTarget && typeof baseTarget === 'object')
-			return new Proxy(baseTarget, {
-				get: (_target, property: string) => {
-					const target: Record<string, unknown> =
-						this.get<Record<string, unknown>>(
-							propertyPath,
-							defaultValue as Record<string, unknown>,
-						) || {};
-
-					return target?.[property];
-				},
-			});
+		if (baseTarget && typeof baseTarget === 'object') {
+			return createConfigProxy(() => this.get(propertyPath, defaultValue));
+		}
 
 		return baseTarget;
 	}

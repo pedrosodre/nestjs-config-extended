@@ -12,13 +12,22 @@ import {
 } from './interfaces';
 import * as cron from 'node-cron';
 import { retrieveVariablesByStrategy } from './util/loader.util';
+import { getConfigToken } from './config-namespace';
+import { createConfigProxy } from './util/config-proxy.util';
+
+/**
+ * Module returned by ExtendedConfigModule.forFeature(). It only provides
+ * configuration namespaces and relies on the root module's service.
+ */
+@Module({})
+export class ExtendedConfigFeatureModule {}
 
 @Module({
 	providers: [
 		Logger,
 		{
 			provide: CRON_SCHEDULER,
-			useValue: cron as unknown as CronScheduler,
+			useValue: (cron as unknown) as CronScheduler,
 		},
 		{
 			provide: EXTENDED_CONFIG_OPTIONS,
@@ -89,6 +98,35 @@ export class ExtendedConfigModule {
 			providers: [...this.createAsyncProviders(options), ExtendedConfigService],
 			exports: [ExtendedConfigService],
 			imports: options.imports,
+		};
+	}
+
+	/**
+	 * Registers configuration namespaces (registerAs keys or object paths) so they
+	 * can be injected with @InjectConfig(namespace). Requires the root module to
+	 * be global (isGlobal: true) so ExtendedConfigService can be resolved.
+	 * The injection waits for variables to be loaded, so preload is not needed.
+	 * @param namespaces one or more namespaces
+	 */
+	static forFeature(namespaces: string | string[]): DynamicModule {
+		const providers: Provider[] = (Array.isArray(namespaces)
+			? namespaces
+			: [namespaces]
+		).map(namespace => ({
+			provide: getConfigToken(namespace),
+			useFactory: async (service: ExtendedConfigService) => {
+				await service.load(true);
+				return createConfigProxy(() => service.get(namespace));
+			},
+			inject: [ExtendedConfigService],
+		}));
+
+		return {
+			module: ExtendedConfigFeatureModule,
+			providers,
+			exports: providers.map(
+				provider => (provider as { provide: string }).provide,
+			),
 		};
 	}
 

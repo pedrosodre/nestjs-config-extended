@@ -243,6 +243,35 @@ this.config.changes().subscribe(event => this.logger.log(event.changedKeys));
 
 Both observables complete when the application shuts down. The same information is available through the `onChange` and `onReloadError` module options.
 
+### Health checks
+
+`getStatus()` returns whether the configuration finished loading and, per strategy, the last success, last failure (with URL credentials masked) and consecutive failures. `ExtendedConfigHealthIndicator` turns that into a [`@nestjs/terminus`](https://docs.nestjs.com/recipes/terminus) (v11+) health indicator without depending on it. It reports `down` until the first load finishes and while a strategy's consecutive failures reach `maxConsecutiveFailures` (default `1`):
+
+```typescript
+@Module({
+	imports: [TerminusModule],
+	controllers: [HealthController],
+	providers: [ExtendedConfigHealthIndicator], // root module must be global
+})
+export class HealthModule {}
+
+@Controller('health')
+export class HealthController {
+	constructor(
+		private health: HealthCheckService,
+		private configHealth: ExtendedConfigHealthIndicator,
+	) {}
+
+	@Get()
+	@HealthCheck()
+	check() {
+		return this.health.check([
+			() => this.configHealth.isHealthy('config', { maxConsecutiveFailures: 3 }),
+		]);
+	}
+}
+```
+
 ### Typed configuration
 
 Pass your configuration type to the service to get autocompleted dotted paths and inferred return types (up to 5 levels deep). With a [schema](#schema-validation), use `InferConfig<typeof schema>`.

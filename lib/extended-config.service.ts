@@ -30,6 +30,8 @@ import {
 import {
 	ConfigChangeEvent,
 	ConfigLoaderStrategy,
+	ConfigStatus,
+	StrategyStatus,
 	ConfigPath,
 	ConfigPathValue,
 	CronScheduledTask,
@@ -70,6 +72,7 @@ export class ExtendedConfigService<K = Record<string, any>>
 	private current: Record<string, any> = {};
 	private readonly version$ = new BehaviorSubject<number>(0);
 	private readonly changes$ = new Subject<ConfigChangeEvent>();
+	private readonly statuses: StrategyStatus[];
 
 	constructor(
 		@Inject(EXTENDED_CONFIG_OPTIONS)
@@ -80,6 +83,16 @@ export class ExtendedConfigService<K = Record<string, any>>
 		@Inject(PRE_LOADED_VALUES)
 		preLoadedResults?: (Record<string, any> | undefined)[] | null,
 	) {
+		this.statuses = (options.strategies || []).map(strategy => ({
+			identifier:
+				strategy.identifier === undefined
+					? undefined
+					: String(strategy.identifier),
+			disabled: !!strategy.disable,
+			loaded: false,
+			consecutiveFailures: 0,
+		}));
+
 		if (!this.isCacheEnabled) {
 			const withRegisterAs = (options.strategies || []).find(
 				strategy => strategy.registerAs && !strategy.disable,
@@ -96,6 +109,11 @@ export class ExtendedConfigService<K = Record<string, any>>
 			this.debug(VARIABLES_PRELOADED_BY_MODULE, ALL_STRATEGIES);
 
 			this.results = [...preLoadedResults];
+			this.results.forEach((result, index) => {
+				if (result && this.statuses[index]) {
+					this.markSuccess(index);
+				}
+			});
 			this.applyResults();
 			this.isLoaded = true;
 
@@ -427,6 +445,37 @@ export class ExtendedConfigService<K = Record<string, any>>
 	}
 
 	/**
+	 * Returns the load status of the service and of each strategy, for example
+	 * to build health checks (see ExtendedConfigHealthIndicator).
+	 */
+	getStatus(): ConfigStatus {
+		return {
+			loaded: this.isLoaded,
+			strategies: this.statuses.map(status => ({ ...status })),
+		};
+	}
+
+	private markSuccess(index: number): void {
+		const status = this.statuses[index];
+		if (status) {
+			status.loaded = true;
+			status.lastSuccessAt = new Date();
+			status.consecutiveFailures = 0;
+		}
+	}
+
+	private markFailure(index: number, error: unknown): void {
+		const status = this.statuses[index];
+		if (status) {
+			status.lastFailureAt = new Date();
+			status.lastError = redactConfig(
+				error instanceof Error ? error.message : String(error),
+			);
+			status.consecutiveFailures++;
+		}
+	}
+
+	/**
 	 * Emits an event every time a load or reload changes the configuration.
 	 */
 	changes(): Observable<ConfigChangeEvent> {
@@ -446,6 +495,12 @@ export class ExtendedConfigService<K = Record<string, any>>
 		const promise = (async () => {
 			try {
 				await this.loadStrategy(strategy, index);
+				if (!strategy.disable) {
+					this.markSuccess(index);
+				}
+			} catch (err) {
+				this.markFailure(index, err);
+				throw err;
 			} finally {
 				this.inFlight.delete(index);
 			}

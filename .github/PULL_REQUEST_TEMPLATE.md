@@ -1,42 +1,14 @@
-## PR Checklist
+## What does this change?
 
-Please check if your PR fulfills the following requirements:
+<!-- Describe the change and why it is needed. Link the issue: "Closes #123". -->
 
-- [ ] The commit message follows our guidelines: https://github.com/nestjs/nest/blob/master/CONTRIBUTING.md
-- [ ] Tests for the changes have been added (for bug fixes / features)
-- [ ] Docs have been added / updated (for bug fixes / features)
+## Checklist
 
-## PR Type
+- [ ] The PR title follows [Conventional Commits](https://www.conventionalcommits.org) (it becomes the squash commit message)
+- [ ] Tests were added or updated (bug fixes include a test that fails without the fix)
+- [ ] The README was updated for user-facing changes
+- [ ] `npm run check` passes locally
 
-What kind of change does this PR introduce?
+## Breaking changes
 
-<!-- Please check the one that applies to this PR using "x". -->
-
-```
-[ ] Bugfix
-[ ] Feature
-[ ] Code style update (formatting, local variables)
-[ ] Refactoring (no functional changes, no api changes)
-[ ] Build related changes
-[ ] CI related changes
-[ ] Other... Please describe:
-```
-
-## What is the current behavior?
-
-<!-- Please describe the current behavior that you are modifying, or link to a relevant issue. -->
-
-Issue Number: N/A
-
-## What is the new behavior?
-
-## Does this PR introduce a breaking change?
-
-```
-[ ] Yes
-[ ] No
-```
-
-<!-- If this PR contains a breaking change, please describe the impact and migration path for existing applications below. -->
-
-## Other information
+<!-- If this breaks existing users, describe the impact and how to migrate. Otherwise write "None". -->

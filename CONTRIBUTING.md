@@ -1,271 +1,116 @@
-# Contributing to Nest
+# Contributing
 
-We would love for you to contribute to this Nest Module and help make it even better than it is
-today! As a contributor, here are the guidelines, based on Nest's one, we would like you to follow:
+Thanks for helping improve `nestjs-config-extended`! This guide explains how to set up the project, the conventions we follow and how changes get released.
 
-- [Code of Conduct](#coc)
-- [Question or Problem?](#question)
-- [Issues and Bugs](#issue)
-- [Feature Requests](#feature)
-- [Submission Guidelines](#submit)
-- [Coding Rules](#rules)
-- [Commit Message Guidelines](#commit)
+- [Questions and bug reports](#questions-and-bug-reports)
+- [Development setup](#development-setup)
+- [Project layout](#project-layout)
+- [Making a change](#making-a-change)
+- [Branches](#branches)
+- [Commit messages](#commit-messages)
+- [Pull requests](#pull-requests)
+- [Releases](#releases)
 
- <!-- - [Signing the CLA](#cla) -->
+## Questions and bug reports
 
-<!-- ## <a name="coc"></a> Code of Conduct
-Help us keep Nest open and inclusive. Please read and follow our [Code of Conduct][coc]. -->
+- **Questions and ideas:** open a [discussion](https://github.com/pedrosodre/nestjs-config-extended/discussions).
+- **Bugs and feature requests:** open an [issue](https://github.com/pedrosodre/nestjs-config-extended/issues/new/choose) using the templates. A minimal reproduction makes bugs much faster to fix.
+- **Security vulnerabilities:** do not open a public issue. Follow [SECURITY.md](SECURITY.md).
 
-## <a name="question"></a> Got a Question or Problem?
+Please follow our [Code of Conduct](CODE_OF_CONDUCT.md) in every interaction.
 
-**Do not open issues for general support questions as we want to keep GitHub issues for bug reports and feature requests.** You've got much better chances of getting your question answered on [Stack Overflow](https://stackoverflow.com/questions/tagged/nestjs) where the questions should be tagged with tag `nestjs`.
+## Development setup
 
-Stack Overflow is a much better place to ask questions since:
+Requirements: Node.js 20 or newer and npm.
 
-<!-- - there are thousands of people willing to help on Stack Overflow [maybe one day] -->
-
-- questions and answers stay available for public viewing so your question / answer might help someone else
-- Stack Overflow's voting system assures that the best answers are prominently visible.
-
-To save your and our time, we will systematically close all issues that are requests for general support and redirect people to Stack Overflow.
-
-If you would like to chat about the question in real-time, you can reach out via [our gitter channel][gitter].
-
-## <a name="issue"></a> Found a Bug?
-
-If you find a bug in the source code, you can help us by
-[submitting an issue](#submit-issue) to our [GitHub Repository][github]. Even better, you can
-[submit a Pull Request](#submit-pr) with a fix.
-
-## <a name="feature"></a> Missing a Feature?
-
-You can _request_ a new feature by [submitting an issue](#submit-issue) to our GitHub
-Repository. If you would like to _implement_ a new feature, please submit an issue with
-a proposal for your work first, to be sure that we can use it.
-Please consider what kind of change it is:
-
-- For a **Major Feature**, first open an issue and outline your proposal so that it can be
-  discussed. This will also allow us to better coordinate our efforts, prevent duplication of work,
-  and help you to craft the change so that it is successfully accepted into the project. For your issue name, please prefix your proposal with `[discussion]`, for example "[discussion]: your feature idea".
-- **Small Features** can be crafted and directly [submitted as a Pull Request](#submit-pr).
-
-## <a name="submit"></a> Submission Guidelines
-
-### <a name="submit-issue"></a> Submitting an Issue
-
-Before you submit an issue, please search the issue tracker, maybe an issue for your problem already exists and the discussion might inform you of workarounds readily available.
-
-We want to fix all the issues as soon as possible, but before fixing a bug we need to reproduce and confirm it. In order to reproduce bugs we will systematically ask you to provide a minimal reproduction scenario using a repository or [Gist](https://gist.github.com/). Having a live, reproducible scenario gives us wealth of important information without going back & forth to you with additional questions like:
-
-- version of NestJS used
-- 3rd-party libraries and their versions
-- and most importantly - a use-case that fails
-
-<!--
-// TODO we need to create a playground, similar to plunkr
-
-A minimal reproduce scenario using a repository or Gist allows us to quickly confirm a bug (or point out coding problem) as well as confirm that we are fixing the right problem. If neither of these are not a suitable way to demonstrate the problem (for example for issues related to our npm packaging), please create a standalone git repository demonstrating the problem. -->
-
-<!-- We will be insisting on a minimal reproduce scenario in order to save maintainers time and ultimately be able to fix more bugs. Interestingly, from our experience users often find coding problems themselves while preparing a minimal plunk. We understand that sometimes it might be hard to extract essentials bits of code from a larger code-base but we really need to isolate the problem before we can fix it. -->
-
-Unfortunately, we are not able to investigate / fix bugs without a minimal reproduction, so if we don't hear back from you we are going to close an issue that don't have enough info to be reproduced.
-
-You can file new issues by filling out our [new issue form](https://github.com/nestjs/nest/issues/new).
-
-### <a name="submit-pr"></a> Submitting a Pull Request (PR)
-
-Before you submit your Pull Request (PR) consider the following guidelines:
-
-1. Search [GitHub](https://github.com/nestjs/nest/pulls) for an open or closed PR
-   that relates to your submission. You don't want to duplicate effort.
-
-<!-- 1. Please sign our [Contributor License Agreement (CLA)](#cla) before sending PRs.
-  We cannot accept code without this. -->
-
-1. Fork the nestjs/nest repo.
-1. Make your changes in a new git branch:
-
-   ```shell
-   git checkout -b my-fix-branch master
-   ```
-
-1. Create your patch, **including appropriate test cases**.
-1. Follow our [Coding Rules](#rules).
-1. Run the full Nest test suite, as described in the [developer documentation][dev-doc],
-   and ensure that all tests pass.
-1. Commit your changes using a descriptive commit message that follows our
-   [commit message conventions](#commit). Adherence to these conventions
-   is necessary because release notes are automatically generated from these messages.
-
-   ```shell
-   git commit -a
-   ```
-
-   Note: the optional commit `-a` command line option will automatically "add" and "rm" edited files.
-
-1. Push your branch to GitHub:
-
-   ```shell
-   git push origin my-fix-branch
-   ```
-
-1. In GitHub, send a pull request to `nestjs:master`.
-
-- If we suggest changes then:
-  - Make the required updates.
-  - Re-run the Nest test suites to ensure tests are still passing.
-  - Rebase your branch and force push to your GitHub repository (this will update your Pull Request):
-
-    ```shell
-    git rebase master -i
-    git push -f
-    ```
-
-That's it! Thank you for your contribution!
-
-#### After your pull request is merged
-
-After your pull request is merged, you can safely delete your branch and pull the changes
-from the main (upstream) repository:
-
-- Delete the remote branch on GitHub either through the GitHub web UI or your local shell as follows:
-
-  ```shell
-  git push origin --delete my-fix-branch
-  ```
-
-- Check out the master branch:
-
-  ```shell
-  git checkout master -f
-  ```
-
-- Delete the local branch:
-
-  ```shell
-  git branch -D my-fix-branch
-  ```
-
-- Update your master with the latest upstream version:
-
-  ```shell
-  git pull --ff upstream master
-  ```
-
-## <a name="rules"></a> Coding Rules
-
-To ensure consistency throughout the source code, keep these rules in mind as you are working:
-
-- All features or bug fixes **must be tested** by one or more specs (unit-tests).
-
-<!--
-// We're working on auto-documentation.
-* All public API methods **must be documented**. (Details TBC). -->
-
-- We follow [Google's JavaScript Style Guide][js-style-guide], but wrap all code at
-  **100 characters**. An automated formatter is available, see
-  [DEVELOPER.md](docs/DEVELOPER.md#clang-format).
-
-## <a name="commit"></a> Commit Message Guidelines
-
-We have very precise rules over how our git commit messages can be formatted. This leads to **more
-readable messages** that are easy to follow when looking through the **project history**. But also,
-we use the git commit messages to **generate the Nest change log**.
-
-### Commit Message Format
-
-Each commit message consists of a **header**, a **body** and a **footer**. The header has a special
-format that includes a **type**, a **scope** and a **subject**:
-
-```
-<type>(<scope>): <subject>
-<BLANK LINE>
-<body>
-<BLANK LINE>
-<footer>
+```bash
+git clone https://github.com/pedrosodre/nestjs-config-extended.git
+cd nestjs-config-extended
+npm ci        # also installs the git hooks
+npm run check # everything CI runs
 ```
 
-The **header** is mandatory and the **scope** of the header is optional.
+Useful scripts:
 
-Any line of the commit message cannot be longer 100 characters! This allows the message to be easier
-to read on GitHub as well as in various git tools.
+| Script                  | What it does                                                    |
+| ----------------------- | --------------------------------------------------------------- |
+| `npm test`              | Unit and e2e tests (Jest)                                       |
+| `npx jest <path>`       | Run a single test file                                          |
+| `npm run test:coverage` | Tests with coverage thresholds                                  |
+| `npm run typecheck`     | Type check the library                                          |
+| `npm run lint`          | ESLint                                                          |
+| `npm run format`        | Format everything with Prettier                                 |
+| `npm run build`         | Compile `lib/` to `dist/`                                       |
+| `npm run lint:package`  | Validate the packed package with publint and arethetypeswrong   |
+| `npm run test:compat`   | Bootstrap a Nest app against the built CommonJS and ESM entries |
+| `npm run check`         | All of the above, in the same order as CI                       |
 
-Footer should contain a [closing reference to an issue](https://help.github.com/articles/closing-issues-via-commit-messages/) if any.
-
-Samples: (even more [samples](https://github.com/nestjs/nest/commits/master))
+## Project layout
 
 ```
-docs(changelog) update change log to beta.5
+lib/                   library source (the public API is lib/index.ts)
+  strategies/          built-in loaders (process.env, .env, JSON, YAML)
+  interfaces/          public types
+  exceptions/          public error classes
+  util/                internal helpers
+index.mjs, index.d.mts ESM entry, re-exports the CommonJS build
+tests/unit/            unit tests
+tests/e2e/             tests that bootstrap Nest testing modules
+tests/compat/          runtime smoke tests against the built package
 ```
 
+Notes:
+
+- `dist/` is generated. Never edit it.
+- The ESM entry re-exports the CommonJS build on purpose, so ESM and CommonJS consumers share one copy of the classes (Nest's dependency injection relies on class identity). Keep it that way.
+
+## Making a change
+
+1. For anything larger than a small fix, open an issue or discussion first so we can agree on the approach.
+2. Create a branch from `master` (see [Branches](#branches)).
+3. Add or update tests. Every bug fix needs a test that fails without the fix.
+4. Update the README when you change public behavior or options.
+5. Run `npm run check` before pushing.
+
+Code style is enforced by ESLint and Prettier (tabs, single quotes). The pre-commit hook formats staged files for you.
+
+## Branches
+
+| Branch             | Purpose                                                                |
+| ------------------ | ---------------------------------------------------------------------- |
+| `master`           | Current stable version. Every merge can trigger a release.             |
+| `next`             | Next major version. Merges publish prereleases (`x.y.z-next.N`).       |
+| `N.x` (e.g. `1.x`) | Maintenance of an older major version.                                 |
+| `<type>/<topic>`   | Short-lived work branches, e.g. `feat/yaml-loader`, `fix/reload-race`. |
+
+Work branches use the same types as commit messages: `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, `build/`, `ci/`, `chore/`.
+
+## Commit messages
+
+We follow [Conventional Commits](https://www.conventionalcommits.org). Versions and release notes are generated from them, and a git hook (commitlint) checks every commit.
+
 ```
-fix(@nestjs/core) need to depend on latest rxjs and zone.js
+<type>(<optional scope>): <short summary in the imperative>
 
-The version in our package.json gets copied to the one we publish, and users need the latest of these.
+<optional body: what changed and why>
+
+<optional footer: BREAKING CHANGE: ..., Closes #123>
 ```
 
-### Revert
+| Type                                                                | Effect on the next release |
+| ------------------------------------------------------------------- | -------------------------- |
+| `fix`                                                               | patch                      |
+| `feat`                                                              | minor                      |
+| `feat!`, `fix!` or a `BREAKING CHANGE:` footer                      | major                      |
+| `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `style`, `perf` | no release                 |
 
-If the commit reverts a previous commit, it should begin with `revert: `, followed by the header of the reverted commit. In the body it should say: `This reverts commit <hash>.`, where the hash is the SHA of the commit being reverted.
+## Pull requests
 
-### Type
+- Target `master` (or `next` for changes that only belong to the next major).
+- Pull requests are **squash merged**, so the PR title becomes the commit message. It must follow Conventional Commits; a check validates it.
+- Describe breaking changes and how to migrate in the PR description.
+- CI must pass: lint, type check, tests on Node 20/22/24 with NestJS 11, runtime checks with NestJS 12, and package validation.
 
-Must be one of the following:
+## Releases
 
-- **build**: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-- **chore**: Updating tasks etc; no production code change
-- **ci**: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
-- **docs**: Documentation only changes
-- **feat**: A new feature
-- **fix**: A bug fix
-- **perf**: A code change that improves performance
-- **refactor**: A code change that neither fixes a bug nor adds a feature
-- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-- **test**: Adding missing tests or correcting existing tests
-
-### Subject
-
-The subject contains succinct description of the change:
-
-- use the imperative, present tense: "change" not "changed" nor "changes"
-- don't capitalize first letter
-- no dot (.) at the end
-
-### Body
-
-Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes".
-The body should include the motivation for the change and contrast this with previous behavior.
-
-### Footer
-
-The footer should contain any information about **Breaking Changes** and is also the place to
-reference GitHub issues that this commit **Closes**.
-
-**Breaking Changes** should start with the word `BREAKING CHANGE:` with a space or two newlines. The rest of the commit message is then used for this.
-
-A detailed explanation can be found in this [document][commit-message-format].
-
-<!-- ## <a name="cla"></a> Signing the CLA
-
-Please sign our Contributor License Agreement (CLA) before sending pull requests. For any code
-changes to be accepted, the CLA must be signed. It's a quick process, we promise!
-
-* For individuals we have a [simple click-through form][individual-cla].
-* For corporations we'll need you to
-  [print, sign and one of scan+email, fax or mail the form][corporate-cla]. -->
-
-<!-- [angular-group]: https://groups.google.com/forum/#!forum/angular -->
-<!-- [coc]: https://github.com/angular/code-of-conduct/blob/master/CODE_OF_CONDUCT.md -->
-
-[commit-message-format]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#
-[corporate-cla]: http://code.google.com/legal/corporate-cla-v1.0.html
-[dev-doc]: https://github.com/nestjs/nest/blob/master/docs/DEVELOPER.md
-[github]: https://github.com/nestjs/nest
-[gitter]: https://gitter.im/nestjs/nest
-[individual-cla]: http://code.google.com/legal/individual-cla-v1.0.html
-[js-style-guide]: https://google.github.io/styleguide/jsguide.html
-[jsfiddle]: http://jsfiddle.net
-[plunker]: http://plnkr.co/edit
-[runnable]: http://runnable.com
-
-<!-- [stackoverflow]: http://stackoverflow.com/questions/tagged/angular -->
+Releases are fully automated with [semantic-release](https://semantic-release.gitbook.io). After CI passes on `master`, `next` or an `N.x` branch, it computes the version from the commits, publishes to npm with provenance, creates the git tag (`vX.Y.Z`) and the GitHub release with the notes. Never create tags or bump `package.json` by hand.

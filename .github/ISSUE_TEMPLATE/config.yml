@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/pedrosodre/nestjs-config-extended/discussions
+    about: Ask questions and discuss ideas in GitHub Discussions.
+  - name: Security vulnerability
+    url: https://github.com/pedrosodre/nestjs-config-extended/security/advisories/new
+    about: Report security problems privately.

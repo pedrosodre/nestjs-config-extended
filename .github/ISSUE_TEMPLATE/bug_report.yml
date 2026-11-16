@@ -1,0 +1,58 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please search existing issues first. Security problems must be reported privately, see SECURITY.md.
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behavior
+      description: What happens? Include error messages and stack traces.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: A repository, gist or step-by-step instructions, including your ExtendedConfigModule options.
+      render: typescript
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: nestjs-config-extended version
+      placeholder: 2.0.0
+    validations:
+      required: true
+  - type: input
+    id: nest
+    attributes:
+      label: NestJS version
+      placeholder: 11.1.0
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version
+      placeholder: 22.12.0
+    validations:
+      required: true
+  - type: dropdown
+    id: module-system
+    attributes:
+      label: Module system
+      options:
+        - CommonJS
+        - ESM
+        - Not sure

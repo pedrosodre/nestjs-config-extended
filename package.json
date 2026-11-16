@@ -45,7 +45,9 @@
     "semantic-release": "semantic-release",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint:package": "publint --strict && attw --pack .",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run build && npm run lint:package"
   },
   "dependencies": {
     "dotenv": "16.6.1",
@@ -111,6 +113,14 @@
     "testRegex": ".spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageThreshold": {
+      "global": {
+        "statements": 90,
+        "branches": 75,
+        "functions": 85,
+        "lines": 90
+      }
     }
   },
   "repository": {
@@ -118,7 +128,7 @@
     "url": "https://github.com/pedrosodre/nestjs-config-extended"
   },
   "lint-staged": {
-    "*.{ts,mjs,js}": [
+    "*.{ts,mts,mjs,js}": [
       "eslint --fix",
       "prettier --write"
     ],

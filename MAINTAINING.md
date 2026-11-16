@@ -25,7 +25,6 @@ The release workflow only creates tags and GitHub releases, so it does not need 
 
 **Settings → Secrets and variables → Actions**
 
-- `SONAR_TOKEN`: SonarCloud token (the scan is skipped when it is missing).
 - `NPM_TOKEN`: only needed until trusted publishing is configured (below).
 
 ## npm trusted publishing

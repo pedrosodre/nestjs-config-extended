@@ -10,8 +10,6 @@
   <a href="https://www.npmjs.com/package/nestjs-config-extended"><img src="https://img.shields.io/npm/v/nestjs-config-extended" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/nestjs-config-extended"><img src="https://img.shields.io/npm/dm/nestjs-config-extended" alt="npm downloads" /></a>
   <a href="https://github.com/pedrosodre/nestjs-config-extended/actions/workflows/release.yml"><img src="https://github.com/pedrosodre/nestjs-config-extended/actions/workflows/release.yml/badge.svg?branch=master" alt="CI and release" /></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=nestjs-config-extended"><img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=alert_status" alt="Quality Gate" /></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=nestjs-config-extended"><img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=coverage" alt="Coverage" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/npm/l/nestjs-config-extended" alt="License" /></a>
 </p>
 

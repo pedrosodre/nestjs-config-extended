@@ -33,15 +33,9 @@
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.json",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "prepublish:npm": "npm run build",
-    "publish:npm": "npm publish --access public",
-    "prepublish:next": "npm run build",
-    "publish:next": "npm publish --access public --tag next",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --runInBand --coverage",
-    "prerelease": "npm run build",
-    "release": "npm publish --access=public",
     "semantic-release": "semantic-release",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -82,7 +76,7 @@
     "publint": "0.3.25",
     "reflect-metadata": "0.1.13",
     "rxjs": "7.8.2",
-    "semantic-release": "^19.0.3",
+    "semantic-release": "25.0.9",
     "ts-jest": "29.4.15",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.1",
@@ -134,5 +128,9 @@
       "prettier --write"
     ],
     "*.{json,md,yml,yaml}": "prettier --write"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

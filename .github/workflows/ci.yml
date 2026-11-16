@@ -1,9 +1,9 @@
 name: CI
 
 on:
-  push:
-    branches: [master, next, '[0-9]+.x']
   pull_request:
+  # Pushes to release branches run CI through the Release workflow.
+  workflow_call:
 
 permissions:
   contents: read

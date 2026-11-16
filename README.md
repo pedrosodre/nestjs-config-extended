@@ -18,7 +18,7 @@
 </div>
 <br />
 
-> :warning: **Attention:** For NestJS v7, this library will maintain `0.x` version in maintenance mode only. The `1.x` version supports NestJS v8 or later.
+> :warning: **Attention:** Starting on version 2, this library supports `nestjs@11` or higher only. For NestJS 8, 9, and 10, stay on `1.x`. For NestJS 7, stay on `0.x`.
 
 ## Description
 

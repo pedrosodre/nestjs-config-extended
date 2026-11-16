@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import getFrom from 'lodash.get';
 import hasOn from 'lodash.has';
 import { setOn } from './util/object.util';
@@ -30,10 +30,12 @@ import { retrieveVariablesByStrategy } from './util/loader.util';
 import { isUndefined } from './util/is-undefined.util';
 
 @Injectable()
-export class ExtendedConfigService<K = Record<string, any>> {
+export class ExtendedConfigService<K = Record<string, any>>
+	implements OnModuleDestroy {
 	private loaded: boolean = false;
 	private loadingPromise?: Promise<void>;
 	private readonly cache: Record<string, any> = {};
+	private readonly scheduledTasks: cron.ScheduledTask[] = [];
 
 	constructor(
 		@Inject(EXTENDED_CONFIG_OPTIONS)
@@ -218,7 +220,7 @@ export class ExtendedConfigService<K = Record<string, any>> {
 				throw new InvalidScheduleException(identifier);
 			}
 
-			this.scheduler.schedule(
+			const task = this.scheduler.schedule(
 				schedule,
 				async () => {
 					this.debug(
@@ -232,6 +234,19 @@ export class ExtendedConfigService<K = Record<string, any>> {
 					timezone: scheduleTimezone,
 				},
 			);
+
+			if (task) {
+				this.scheduledTasks.push(task);
+			}
+		}
+	}
+
+	/**
+	 * Stops every scheduled reload so timers do not outlive the application.
+	 */
+	onModuleDestroy(): void {
+		for (const task of this.scheduledTasks.splice(0)) {
+			task.destroy();
 		}
 	}
 

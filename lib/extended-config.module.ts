@@ -8,6 +8,7 @@ import { ExtendedConfigService } from './extended-config.service';
 import {
 	ExtendedConfigModuleSyncOptions,
 	ExtendedConfigModuleAsyncOptions,
+	CronScheduler,
 } from './interfaces';
 import * as cron from 'node-cron';
 import { retrieveVariablesByStrategy } from './util/loader.util';
@@ -18,7 +19,7 @@ import { setOn } from './util/object.util';
 		Logger,
 		{
 			provide: CRON_SCHEDULER,
-			useValue: cron,
+			useValue: cron as unknown as CronScheduler,
 		},
 		{
 			provide: EXTENDED_CONFIG_OPTIONS,

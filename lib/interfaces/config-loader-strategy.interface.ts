@@ -1,5 +1,3 @@
-import { Timezone } from 'tz-offset';
-
 type LoaderReturnValue = Record<string, any> | Promise<Record<string, any>>;
 
 export type LoaderMethod<T extends LoaderReturnValue = LoaderReturnValue> = (
@@ -61,9 +59,9 @@ export interface ConfigLoaderStrategy {
 	schedule?: string;
 
 	/**
-	 * Set scheduler timezone.
+	 * Set scheduler timezone using an IANA name (e.g. "America/Sao_Paulo").
 	 */
-	scheduleTimezone?: Timezone;
+	scheduleTimezone?: string;
 
 	/**
 	 * If set, all configuration will be set under the key passed on this variable.

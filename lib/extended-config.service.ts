@@ -23,10 +23,11 @@ import {
 } from './config.constants';
 import {
 	ConfigLoaderStrategy,
+	CronScheduledTask,
+	CronScheduler,
 	ExtendedConfigModuleOptions,
 } from './interfaces';
 import { InvalidScheduleException } from './exceptions';
-import cron from 'node-cron';
 import { retrieveVariablesByStrategy } from './util/loader.util';
 import { isUndefined } from './util/is-undefined.util';
 
@@ -36,13 +37,13 @@ export class ExtendedConfigService<K = Record<string, any>>
 	private loaded: boolean = false;
 	private loadingPromise?: Promise<void>;
 	private readonly cache: Record<string, any> = {};
-	private readonly scheduledTasks: cron.ScheduledTask[] = [];
+	private readonly scheduledTasks: CronScheduledTask[] = [];
 
 	constructor(
 		@Inject(EXTENDED_CONFIG_OPTIONS)
 		private readonly options: ExtendedConfigModuleOptions,
 		@Inject(CRON_SCHEDULER)
-		private readonly scheduler: typeof cron,
+		private readonly scheduler: CronScheduler,
 		private readonly logger: Logger,
 		@Inject(PRE_LOADED_VALUES) preLoadedValues?: Record<string, any>,
 	) {

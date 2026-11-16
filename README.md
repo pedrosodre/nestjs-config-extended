@@ -176,6 +176,7 @@ const apiKey = this.extendedConfigService.getOrThrow<string>('API_KEY');
 const hasPassword = this.extendedConfigService.has('DATABASE_USER');
 
 // reload environment variables on strategies that allows reload
+// (every reloadable strategy is attempted; rejects with the first error)
 await this.extendedConfigService.reload();
 
 // reload environment variables for a specific strategy that allows reload

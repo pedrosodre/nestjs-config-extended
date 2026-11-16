@@ -239,19 +239,11 @@ export class ExtendedConfigService<K = Record<string, any>>
 		return this.options.cache === false ? this.options.cache : true;
 	}
 
-	private async loadVariables(onlyReloadable: boolean = false): Promise<void> {
-		for await (const strategy of this.options.strategies || []) {
-			const { reloadable, identifier } = strategy;
-
-			if (!onlyReloadable || reloadable) {
-				this.debug(STARTING_STRATEGY, identifier);
-
-				await this.loadVariablesByStrategy(strategy);
-
-				if (!onlyReloadable) {
-					this.configureScheduler(strategy);
-				}
-			}
+	private async loadVariables(): Promise<void> {
+		for (const strategy of this.options.strategies || []) {
+			this.debug(STARTING_STRATEGY, strategy.identifier);
+			await this.loadVariablesByStrategy(strategy);
+			this.configureScheduler(strategy);
 		}
 	}
 
@@ -372,24 +364,44 @@ export class ExtendedConfigService<K = Record<string, any>>
 	 * @param strategyIdentifier optional strategy's identifier to allow reload environment variables from a single strategy.
 	 */
 	async reload(strategyIdentifier?: string | Symbol): Promise<void> {
-		try {
-			if (strategyIdentifier) {
-				const strategy = this.options.strategies?.find(
-					singleStrategy => singleStrategy.identifier === strategyIdentifier,
-				);
+		if (strategyIdentifier) {
+			const strategy = this.options.strategies?.find(
+				singleStrategy => singleStrategy.identifier === strategyIdentifier,
+			);
 
-				if (strategy?.reloadable) {
-					this.debug(STARTING_RELOAD, strategy.identifier);
+			if (strategy?.reloadable) {
+				this.debug(STARTING_RELOAD, strategy.identifier);
+				try {
 					await this.loadVariablesByStrategy(strategy);
+				} catch (err) {
+					await this.handleReloadError(err, strategy.identifier);
+					throw err;
 				}
-			} else {
-				this.debug(STARTING_RELOAD, ALL_STRATEGIES);
-				const onlyReloadable = true;
-				await this.loadVariables(onlyReloadable);
 			}
-		} catch (err) {
-			await this.handleReloadError(err, strategyIdentifier);
-			throw err;
+			return;
+		}
+
+		this.debug(STARTING_RELOAD, ALL_STRATEGIES);
+
+		// Reload every reloadable strategy even if one fails, report each failure
+		// with its identifier, then reject with the first error.
+		let firstError: unknown;
+		for (const strategy of this.options.strategies || []) {
+			if (!strategy.reloadable) {
+				continue;
+			}
+
+			this.debug(STARTING_STRATEGY, strategy.identifier);
+			try {
+				await this.loadVariablesByStrategy(strategy);
+			} catch (err) {
+				firstError = firstError ?? err;
+				await this.handleReloadError(err, strategy.identifier);
+			}
+		}
+
+		if (firstError !== undefined) {
+			throw firstError;
 		}
 	}
 

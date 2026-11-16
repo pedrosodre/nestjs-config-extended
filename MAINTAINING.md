@@ -13,7 +13,7 @@ Notes for maintainers: repository settings that cannot live in code, and how rel
 **Settings → Rules → Rulesets** (target `master`, `next` and `*.x`)
 
 - Require a pull request before merging (1 approval for external contributors).
-- Require status checks to pass: `Check (Node 20, NestJS 11)`, `Check (Node 22, NestJS 11)`, `Check (Node 24, NestJS 11)`, `Runtime compatibility (Node 22, NestJS 12)`, `Runtime compatibility (Node 24, NestJS 12)`, `Conventional Commits` and `Analyze` (CodeQL).
+- Require status checks to pass: `Check (Node 22, NestJS 11)`, `Check (Node 24, NestJS 11)`, `Check (Node 26, NestJS 11)`, `Runtime compatibility (Node 22, NestJS 12)`, `Runtime compatibility (Node 24, NestJS 12)`, `Runtime compatibility (Node 26, NestJS 12)`, `Conventional Commits` and `Analyze` (CodeQL).
 - Require linear history and block force pushes and deletions.
 
 The release workflow only creates tags and GitHub releases, so it does not need to bypass these rules.

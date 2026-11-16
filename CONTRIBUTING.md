@@ -21,7 +21,7 @@ Please follow our [Code of Conduct](CODE_OF_CONDUCT.md) in every interaction.
 
 ## Development setup
 
-Requirements: Node.js 20 or newer and npm.
+Requirements: Node.js 22.12 or newer and npm.
 
 ```bash
 git clone https://github.com/pedrosodre/nestjs-config-extended.git
@@ -109,7 +109,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org). Versions 
 - Target `master` (or `next` for changes that only belong to the next major).
 - Pull requests are **squash merged**, so the PR title becomes the commit message. It must follow Conventional Commits; a check validates it.
 - Describe breaking changes and how to migrate in the PR description.
-- CI must pass: lint, type check, tests on Node 20/22/24 with NestJS 11, runtime checks with NestJS 12, and package validation.
+- CI must pass: lint, type check, tests on Node 22/24/26 with NestJS 11, runtime checks with NestJS 12, and package validation.
 
 ## Releases
 

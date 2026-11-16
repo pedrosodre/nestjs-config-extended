@@ -41,11 +41,11 @@ Extended configuration module for [NestJS](https://nestjs.com), inspired by [Nes
 
 | nestjs-config-extended | NestJS   | Node.js |
 | ---------------------- | -------- | ------- |
-| 2.x                    | 11, 12   | 20+     |
+| 2.x                    | 11, 12   | 22.12+  |
 | 1.x                    | 8, 9, 10 | -       |
 | 0.x                    | 7        | -       |
 
-NestJS 12 is ESM-only. This package works with it from both CommonJS and ESM applications on Node.js versions that support `require()` of ES modules (20.19+ or 22.12+).
+NestJS 12 is ESM-only. This package works with it from both CommonJS and ESM applications, relying on `require()` of ES modules, which Node.js supports without a flag since 22.12.
 
 Upgrading from 1.x? Read the [migration guide](MIGRATION.md).
 

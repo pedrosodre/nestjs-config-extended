@@ -83,6 +83,8 @@ Code style is enforced by ESLint and Prettier (tabs, single quotes). The pre-com
 | `N.x` (e.g. `1.x`) | Maintenance of an older major version.                                 |
 | `<type>/<topic>`   | Short-lived work branches, e.g. `feat/yaml-loader`, `fix/reload-race`. |
 
+`next` is reserved for the upcoming major version: breaking changes and work that depends on them. Non-breaking fixes and features go to `master`, so they are released right away; maintainers merge `master` into `next` regularly to keep it up to date.
+
 Work branches use the same types as commit messages: `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, `build/`, `ci/`, `chore/`.
 
 ## Commit messages

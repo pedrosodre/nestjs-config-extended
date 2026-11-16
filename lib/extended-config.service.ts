@@ -45,6 +45,7 @@ import { retrieveVariablesByStrategy } from './util/loader.util';
 import { isUndefined } from './util/is-undefined.util';
 import { isDeepEqual } from './util/deep-equal.util';
 import { parseDuration } from './util/duration.util';
+import { cloneConfigValue } from './util/clone.util';
 
 @Injectable()
 export class ExtendedConfigService<K = Record<string, any>>
@@ -580,13 +581,15 @@ export class ExtendedConfigService<K = Record<string, any>>
 	): void {
 		const { registerAs } = strategy;
 
+		// Clone so building the merged view never mutates stored strategy results
+		// (or the previous snapshot used to detect changes).
 		if (registerAs) {
-			setOn(target, registerAs, variables);
+			setOn(target, registerAs, cloneConfigValue(variables));
 			return;
 		}
 
 		for (const key of Object.keys(variables)) {
-			setOn(target, key, variables[key]);
+			setOn(target, key, cloneConfigValue(variables[key]));
 		}
 	}
 

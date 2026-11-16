@@ -149,6 +149,12 @@ const appConfig = this.extendedConfigService.getProxyOf<
 	Record<string, unknown>
 >('APP_CONFIG');
 
+// get a nested value using a dotted path
+const dbHost = this.extendedConfigService.get('database.host');
+
+// get a value or throw a MissingConfigException when it is not defined
+const apiKey = this.extendedConfigService.getOrThrow<string>('API_KEY');
+
 // verify if an environment variable exists
 const hasPassword = this.extendedConfigService.has('DATABASE_USER');
 
@@ -158,6 +164,25 @@ await this.extendedConfigService.reload();
 // reload environment variables for a specific strategy that allows reload
 await this.extendedConfigService.reload('STRATEGY_IDENTIFIER');
 ```
+
+### Typed configuration
+
+Pass your configuration type to the service to get autocompleted dotted paths and inferred return types (up to 5 levels deep). With a [schema](#schema-validation), use `InferConfig<typeof schema>`.
+
+```typescript
+interface AppConfig {
+	PORT: number;
+	database: { host: string; ssl?: boolean };
+}
+
+constructor(private config: ExtendedConfigService<AppConfig>) {}
+
+const port = this.config.get('PORT'); // number | undefined
+const host = this.config.getOrThrow('database.host'); // string
+this.config.get('database.nope'); // compile error
+```
+
+Untyped services keep accepting any string and explicit type arguments such as `get<string>('KEY')`.
 
 > :warning: **Important:** `getProxyOf()` method only returns a proxy when returned value is an object, in any other cases, it will return the value directly. If you need a non-object value from the proxy, try encapsulate it with a transformer.
 

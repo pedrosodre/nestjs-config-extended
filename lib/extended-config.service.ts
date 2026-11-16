@@ -23,12 +23,15 @@ import {
 } from './config.constants';
 import {
 	ConfigLoaderStrategy,
+	ConfigPath,
+	ConfigPathValue,
 	CronScheduledTask,
 	CronScheduler,
 	ExtendedConfigModuleOptions,
 } from './interfaces';
 import {
 	InvalidScheduleException,
+	MissingConfigException,
 	ProcessEnvAssignmentException,
 } from './exceptions';
 import { retrieveVariablesByStrategy } from './util/loader.util';
@@ -124,25 +127,47 @@ export class ExtendedConfigService<K = Record<string, any>>
 	}
 
 	/**
-	 * Method that retrieve an environment variable given a key.
+	 * Retrieves a configuration value by key or dotted path (e.g. "db.host").
+	 * When the service is typed (`ExtendedConfigService<Config>`), paths are
+	 * autocompleted and the return type is inferred.
 	 *
 	 * @param propertyPath property path (key) associated with the desired variable.
 	 * @param defaultValue optional default variable to be returned if the service does not have the requested variable.
 	 */
-	get<T = any>(propertyPath: keyof K, defaultValue?: T): T | undefined {
-		if (this.isCacheEnabled) {
-			const cachedValue = this.getFromCache(propertyPath);
-			if (!isUndefined(cachedValue)) {
-				return cachedValue;
-			}
-		} else {
-			const processEnvValue = this.getFromProcessEnv(propertyPath);
-			if (!isUndefined(processEnvValue)) {
-				return processEnvValue;
-			}
+	get<P extends ConfigPath<K>>(
+		propertyPath: P,
+	): ConfigPathValue<K, P> | undefined;
+	get<P extends ConfigPath<K>>(
+		propertyPath: P,
+		defaultValue: ConfigPathValue<K, P>,
+	): ConfigPathValue<K, P>;
+	get<T = any>(propertyPath: ConfigPath<K>, defaultValue?: T): T | undefined;
+	get(propertyPath: string, defaultValue?: unknown): any {
+		const value = this.isCacheEnabled
+			? getFrom(this.cache, propertyPath)
+			: getFrom(process.env, propertyPath);
+
+		return isUndefined(value) ? defaultValue : value;
+	}
+
+	/**
+	 * Retrieves a configuration value and throws a MissingConfigException when
+	 * it is not defined.
+	 *
+	 * @param propertyPath property path (key) associated with the desired variable.
+	 */
+	getOrThrow<P extends ConfigPath<K>>(
+		propertyPath: P,
+	): NonNullable<ConfigPathValue<K, P>>;
+	getOrThrow<T = any>(propertyPath: ConfigPath<K>): T;
+	getOrThrow(propertyPath: string): any {
+		const value = this.get(propertyPath as ConfigPath<K>);
+
+		if (isUndefined(value)) {
+			throw new MissingConfigException(propertyPath);
 		}
 
-		return defaultValue;
+		return value;
 	}
 
 	/**
@@ -151,36 +176,31 @@ export class ExtendedConfigService<K = Record<string, any>>
 	 * @param propertyPath property path (key) associated with the desired variable.
 	 * @param defaultValue optional default variable to be returned if the service does not have the requested variable.
 	 */
-	getProxyOf<T = any>(propertyPath: keyof K, defaultValue?: T): T | undefined {
-		const baseTarget = this.get<T>(propertyPath, defaultValue);
+	getProxyOf<P extends ConfigPath<K>>(
+		propertyPath: P,
+		defaultValue?: ConfigPathValue<K, P>,
+	): ConfigPathValue<K, P> | undefined;
+	getProxyOf<T = any>(
+		propertyPath: ConfigPath<K>,
+		defaultValue?: T,
+	): T | undefined;
+	getProxyOf(propertyPath: ConfigPath<K>, defaultValue?: unknown): any {
+		const baseTarget = this.get(propertyPath, defaultValue);
 
 		if (baseTarget && typeof baseTarget === 'object')
-			return new Proxy(baseTarget as T & object, {
+			return new Proxy(baseTarget, {
 				get: (_target, property: string) => {
 					const target: Record<string, unknown> =
-						this.get<T>(propertyPath, defaultValue) || {};
+						this.get<Record<string, unknown>>(
+							propertyPath,
+							defaultValue as Record<string, unknown>,
+						) || {};
 
 					return target?.[property];
 				},
-			}) as T;
+			});
 
 		return baseTarget;
-	}
-
-	private getFromCache<T = any>(propertyPath: keyof K): T | undefined {
-		return getFrom(this.cache, propertyPath);
-	}
-
-	private getFromProcessEnv<T = any>(propertyPath: keyof K): T | undefined {
-		return getFrom(process.env, propertyPath);
-	}
-
-	private hasOnCache(propertyPath: keyof K): boolean {
-		return hasOn(this.cache, propertyPath);
-	}
-
-	private hasOnProcessEnv(propertyPath: keyof K): boolean {
-		return hasOn(process.env, propertyPath);
 	}
 
 	/**
@@ -190,12 +210,10 @@ export class ExtendedConfigService<K = Record<string, any>>
 	 *
 	 * @returns a boolean that indicates the existence of an environment variable.
 	 */
-	has(propertyPath: keyof K): boolean {
-		if (this.isCacheEnabled) {
-			return this.hasOnCache(propertyPath);
-		} else {
-			return this.hasOnProcessEnv(propertyPath);
-		}
+	has(propertyPath: ConfigPath<K>): boolean {
+		return this.isCacheEnabled
+			? hasOn(this.cache, propertyPath)
+			: hasOn(process.env, propertyPath);
 	}
 
 	private get isCacheEnabled(): boolean {

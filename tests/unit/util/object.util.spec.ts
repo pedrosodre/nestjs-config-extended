@@ -24,3 +24,16 @@ test.each(['__proto__.polluted', 'constructor.prototype.polluted', [
 	expect(({} as Record<string, unknown>).polluted).toBeUndefined();
 	expect(Object.prototype.hasOwnProperty('polluted')).toBe(false);
 });
+
+test('should replace primitive intermediate values instead of throwing', () => {
+	const obj: Record<string, any> = { DB: 'x', N: null };
+	setOn(obj, 'DB.HOST', 'h');
+	setOn(obj, 'N.a', 1);
+	expect(obj).toEqual({ DB: { HOST: 'h' }, N: { a: 1 } });
+});
+
+test('should keep existing sibling values on nested objects', () => {
+	const obj: Record<string, any> = { db: { port: 1 } };
+	setOn(obj, 'db.host', 'h');
+	expect(obj).toEqual({ db: { port: 1, host: 'h' } });
+});

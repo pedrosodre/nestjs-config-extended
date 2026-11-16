@@ -21,13 +21,17 @@ export const setOn = <
 	for (let i = 0; i < pathArray.length; i++) {
 		const key: string | number = pathArray[i];
 
-		if (nestedObj[key] === undefined) {
-			const isIndex = isNaN(Number(pathArray[i + 1]));
-			nestedObj[key as keyof T] = isIndex ? {} : [];
-		}
-
 		if (i === pathArray.length - 1) {
 			nestedObj[key as keyof T] = value;
+			break;
+		}
+
+		const current = nestedObj[key];
+		if (current === null || typeof current !== 'object') {
+			// Intermediate segment is missing or a primitive: replace it with a
+			// container (same semantics as lodash.set) instead of throwing.
+			const nextIsIndex = !isNaN(Number(pathArray[i + 1]));
+			nestedObj[key as keyof T] = nextIsIndex ? [] : {};
 		}
 
 		nestedObj = nestedObj[key] as Record<keyof T, unknown>;

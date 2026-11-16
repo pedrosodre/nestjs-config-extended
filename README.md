@@ -146,7 +146,7 @@ When validation fails, loading throws a `SchemaValidationException` that lists e
 To access the loaded configuration values from our `ExtendedConfigService`, we first need to inject `ExtendedConfigService`. As with any provider, we need to import its containing module - the `ExtendedConfigModule` - into the module that will use it (unless you set the `isGlobal` property in the options to true). Then we can inject it using standard constructor injection:
 
 ```typescript
-constructor(private extendedConfigService: ExtendedConfigModule) {}
+constructor(private extendedConfigService: ExtendedConfigService) {}
 ```
 
 Once it's injected, you already can use the following service methods to work with environment variables.

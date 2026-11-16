@@ -13,12 +13,20 @@ describe('[Strategy] JSON file', () => {
 	});
 
 	it('should resolve relative paths from process.cwd()', () => {
-		const relative = join('tests', 'unit', 'strategies', 'fixtures', 'config.json');
+		const relative = join(
+			'tests',
+			'unit',
+			'strategies',
+			'fixtures',
+			'config.json',
+		);
 		expect(jsonFileLoader({ path: relative }).PORT).toBe(3000);
 	});
 
 	it('should return an empty object for missing optional files', () => {
-		expect(jsonFileLoader({ path: fixture('nope.json'), optional: true })).toEqual({});
+		expect(
+			jsonFileLoader({ path: fixture('nope.json'), optional: true }),
+		).toEqual({});
 	});
 
 	it('should throw for missing required files, missing path and non-object content', () => {

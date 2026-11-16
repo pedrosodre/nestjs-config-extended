@@ -60,8 +60,16 @@ describe('Change notifications', () => {
 		await service.reload('A'); // no changes, no event
 
 		expect(events).toEqual([
-			{ reason: 'load', identifier: 'A', changedKeys: ['KEEP', 'CHANGE', 'REMOVE'] },
-			{ reason: 'reload', identifier: 'A', changedKeys: ['CHANGE', 'REMOVE', 'ADD'] },
+			{
+				reason: 'load',
+				identifier: 'A',
+				changedKeys: ['KEEP', 'CHANGE', 'REMOVE'],
+			},
+			{
+				reason: 'reload',
+				identifier: 'A',
+				changedKeys: ['CHANGE', 'REMOVE', 'ADD'],
+			},
 		]);
 		expect(onChange).toHaveBeenCalledTimes(2);
 		expect(onChange).toHaveBeenLastCalledWith(events[1]);

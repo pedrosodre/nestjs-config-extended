@@ -25,9 +25,7 @@ const appSchema = (
 			const result: StandardSchemaV1.Result<AppConfig> = Number.isInteger(port)
 				? { value: { PORT: port, HOST: String(input.HOST ?? 'localhost') } }
 				: {
-						issues: [
-							{ message: 'Expected integer', path: [{ key: 'PORT' }] },
-						],
+						issues: [{ message: 'Expected integer', path: [{ key: 'PORT' }] }],
 				  };
 			return async ? Promise.resolve(result) : result;
 		},

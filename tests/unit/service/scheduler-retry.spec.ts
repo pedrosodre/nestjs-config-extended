@@ -26,7 +26,12 @@ describe('Scheduler configuration', () => {
 			.mockResolvedValue({});
 		const service = createService(
 			[
-				{ identifier: 'A', loader: () => ({}), reloadable: true, schedule: '* * * * *' },
+				{
+					identifier: 'A',
+					loader: () => ({}),
+					reloadable: true,
+					schedule: '* * * * *',
+				},
 				{ identifier: 'B', loader: failing },
 			],
 			cron,

@@ -50,9 +50,7 @@ describe('ExtendedConfigService with cache disabled', () => {
 			{ identifier: 'A', loader: () => ({ PE_SPEC_OBJ: { host: 'h' } }) },
 		]);
 
-		await expect(service.load()).rejects.toThrow(
-			ProcessEnvAssignmentException,
-		);
+		await expect(service.load()).rejects.toThrow(ProcessEnvAssignmentException);
 		expect('PE_SPEC_OBJ' in process.env).toBe(false);
 	});
 

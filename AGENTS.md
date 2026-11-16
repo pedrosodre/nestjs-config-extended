@@ -73,4 +73,6 @@ tests/compat/                 runtime smoke tests against the built package (CJS
 
 - NestJS 12 is ESM-only and cannot be loaded by Jest's CommonJS runtime. The Jest suite runs against NestJS 11; NestJS 12 is covered by `tests/compat` in CI.
 - `rm` and `cp` may be aliased to interactive versions in maintainers' shells; use `command rm -f` / `command cp -f` in scripts.
+- ts-jest caches compiled tests and can miss type errors caused by changes to types in `lib/`. After changing public types, run the affected tests with `npx jest --no-cache <path>` (CI always starts clean).
+- Nest's `app.get(ExtendedConfigService)` infers the service as `ExtendedConfigService<unknown>`; keep `unknown` behaving like an untyped configuration and test that form, not only annotated variables.
 - `@ts-expect-error` assertions in `tests/unit/service/typed-get.spec.ts` are real type tests: ts-jest fails the suite if they stop erroring.

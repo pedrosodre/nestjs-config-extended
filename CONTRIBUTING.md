@@ -32,18 +32,19 @@ npm run check # everything CI runs
 
 Useful scripts:
 
-| Script                  | What it does                                                    |
-| ----------------------- | --------------------------------------------------------------- |
-| `npm test`              | Unit and e2e tests (Jest)                                       |
-| `npx jest <path>`       | Run a single test file                                          |
-| `npm run test:coverage` | Tests with coverage thresholds                                  |
-| `npm run typecheck`     | Type check the library                                          |
-| `npm run lint`          | ESLint                                                          |
-| `npm run format`        | Format everything with Prettier                                 |
-| `npm run build`         | Compile `lib/` to `dist/`                                       |
-| `npm run lint:package`  | Validate the packed package with publint and arethetypeswrong   |
-| `npm run test:compat`   | Bootstrap a Nest app against the built CommonJS and ESM entries |
-| `npm run check`         | All of the above, in the same order as CI                       |
+| Script                  | What it does                                                        |
+| ----------------------- | ------------------------------------------------------------------- |
+| `npm test`              | Unit and e2e tests (Jest)                                           |
+| `npx jest <path>`       | Run a single test file                                              |
+| `npm run test:coverage` | Tests with coverage thresholds                                      |
+| `npm run typecheck`     | Type check the library                                              |
+| `npm run lint`          | ESLint                                                              |
+| `npm run format`        | Format everything with Prettier                                     |
+| `npm run build`         | Compile `lib/` to `dist/`                                           |
+| `npm run api:update`    | Update the public API report in `etc/` after an intended API change |
+| `npm run lint:package`  | Validate the packed package with publint and arethetypeswrong       |
+| `npm run test:compat`   | Bootstrap a Nest app against the built CommonJS and ESM entries     |
+| `npm run check`         | All of the above, in the same order as CI                           |
 
 ## Project layout
 
@@ -70,7 +71,8 @@ Notes:
 2. Create a branch from `master` (see [Branches](#branches)).
 3. Add or update tests. Every bug fix needs a test that fails without the fix.
 4. Update the README when you change public behavior or options.
-5. Run `npm run check` before pushing.
+5. If you changed the public API, run `npm run build && npm run api:update` and commit the updated `etc/nestjs-config-extended.api.md`. CI fails when the report is out of date, which makes every public API change visible in review.
+6. Run `npm run check` before pushing.
 
 Code style is enforced by ESLint and Prettier (tabs, single quotes). The pre-commit hook formats staged files for you.
 

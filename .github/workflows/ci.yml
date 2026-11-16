@@ -32,6 +32,8 @@ jobs:
       - run: npm run format:check
       - run: npm run test:coverage
       - run: npm run build
+      - name: Public API report is up to date
+        run: npm run api:check
       - run: npm run lint:package
       - run: npm run test:compat
       - name: Upload coverage

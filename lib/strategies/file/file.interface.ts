@@ -7,7 +7,7 @@ export interface FileLoaderOptions {
 	/**
 	 * File encoding. Defaults to "utf8".
 	 */
-	encoding?: BufferEncoding;
+	encoding?: string;
 
 	/**
 	 * If "true", a missing file loads no variables instead of failing.

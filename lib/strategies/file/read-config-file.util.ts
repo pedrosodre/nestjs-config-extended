@@ -20,7 +20,10 @@ export const readConfigFile = (
 		throw new Error(`${format} file not found: ${filePath}`);
 	}
 
-	const content = fs.readFileSync(filePath, options.encoding || 'utf8');
+	const content = fs.readFileSync(
+		filePath,
+		(options.encoding || 'utf8') as BufferEncoding,
+	);
 	const parsed = parse(content);
 
 	if (parsed === undefined || parsed === null) {

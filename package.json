@@ -63,8 +63,10 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepare": "husky",
     "lint:package": "publint --strict && attw --pack .",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run build && npm run lint:package && npm run test:compat",
-    "test:compat": "node tests/compat/runtime.cjs && node tests/compat/runtime.mjs"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run build && npm run api:check && npm run lint:package && npm run test:compat",
+    "test:compat": "node tests/compat/runtime.cjs && node tests/compat/runtime.mjs",
+    "api:check": "api-extractor run",
+    "api:update": "api-extractor run --local"
   },
   "dependencies": {
     "dotenv": "16.6.1",
@@ -79,6 +81,7 @@
     "@commitlint/cli": "20.5.3",
     "@commitlint/config-conventional": "20.5.3",
     "@eslint/js": "9.39.5",
+    "@microsoft/api-extractor": "7.60.1",
     "@nestjs/common": "11.2.8",
     "@nestjs/core": "11.2.8",
     "@nestjs/platform-express": "11.2.8",

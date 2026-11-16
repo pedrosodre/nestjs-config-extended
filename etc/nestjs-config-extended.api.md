@@ -53,17 +53,17 @@ export interface ConfigLoaderStrategy {
     validator?: ValidatorClass | ValidatorMethod;
 }
 
-// Warning: (ae-forgotten-export) The symbol "IsAny" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "IsUntyped" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "Leaf" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "PrevDepth" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
-export type ConfigPath<T, Depth extends number = 5> = IsAny<T> extends true ? string : [Depth] extends [never] ? never : T extends Leaf ? never : {
-    [K in keyof T & string]: IsAny<T[K]> extends true ? K | `${K}.${string}` : NonNullable<T[K]> extends Leaf ? K : K | `${K}.${ConfigPath<NonNullable<T[K]>, PrevDepth[Depth]>}`;
+export type ConfigPath<T, Depth extends number = 5> = IsUntyped<T> extends true ? string : [Depth] extends [never] ? never : T extends Leaf ? never : {
+    [K in keyof T & string]: IsUntyped<T[K]> extends true ? K | `${K}.${string}` : NonNullable<T[K]> extends Leaf ? K : K | `${K}.${ConfigPath<NonNullable<T[K]>, PrevDepth[Depth]>}`;
 }[keyof T & string];
 
 // @public (undocumented)
-export type ConfigPathValue<T, P extends string> = IsAny<T> extends true ? any : P extends keyof T ? T[P] : P extends `${infer Head}.${infer Rest}` ? Head extends keyof T ? ConfigPathValue<NonNullable<T[Head]>, Rest> : unknown : unknown;
+export type ConfigPathValue<T, P extends string> = IsUntyped<T> extends true ? any : P extends keyof T ? T[P] : P extends `${infer Head}.${infer Rest}` ? Head extends keyof T ? ConfigPathValue<NonNullable<T[Head]>, Rest> : unknown : unknown;
 
 // @public (undocumented)
 export interface ConfigStatus {

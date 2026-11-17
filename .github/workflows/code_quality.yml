@@ -21,12 +21,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - run: npm install -g sonarqube-scanner
       - run: npm run lint
-      - run: |
-          npm run test:coverage
-          sonar-scanner -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      - run: npm run test:coverage
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

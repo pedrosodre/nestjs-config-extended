@@ -8,10 +8,6 @@
 
 <div>
     <img src="https://img.shields.io/github/package-json/v/pedrosodre/nestjs-config-extended" alt="Module Version" />
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=alert_status" alt="SonarCloud Alert Status">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=security_rating" alt="SonarCloud Security Rating">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=coverage" alt="SonarCloud Coverage">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=nestjs-config-extended&metric=bugs" alt="SonarCloud Bugs">
     <img src="https://img.shields.io/github/license/pedrosodre/nestjs-config-extended" alt="License" />
     <img src="https://img.shields.io/github/issues-raw/pedrosodre/nestjs-config-extended" alt="Issues" />
     <img src="https://img.shields.io/github/last-commit/pedrosodre/nestjs-config-extended" alt="GitHub Last Commit" />

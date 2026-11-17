@@ -40,6 +40,32 @@ describe('redactConfig', () => {
 		});
 	});
 
+	it('should mask URL credentials with passwords containing colons and in longer strings', () => {
+		expect(
+			redactConfig({
+				A: 'redis://:p:a:ss@cache:6379',
+				B: 'primary=amqp://u:one@h1 fallback=amqp://u:two@h2/vhost',
+			}),
+		).toEqual({
+			A: 'redis://:[REDACTED]@cache:6379',
+			B: 'primary=amqp://u:[REDACTED]@h1 fallback=amqp://u:[REDACTED]@h2/vhost',
+		});
+	});
+
+	it('should redact long strings in linear time', () => {
+		const inputs = [
+			'a'.repeat(200_000),
+			'://' + 'a:'.repeat(100_000),
+			'://a:' + 'b'.repeat(200_000),
+		];
+		const start = Date.now();
+		for (const value of inputs) {
+			expect(redactConfig({ value })).toEqual({ value });
+		}
+		// The previous regex took tens of seconds on the first input.
+		expect(Date.now() - start).toBeLessThan(1000);
+	});
+
 	it('should support custom keys and replacement without mutating the input', () => {
 		const input = { INTERNAL_ID: 'x', other: { iban: 'y' }, KEEP: 'z' };
 		expect(

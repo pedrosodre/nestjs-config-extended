@@ -46,9 +46,9 @@
   },
   "devDependencies": {
     "@nestjs/common": "^9.4.3",
-    "@nestjs/core": "^9.4.3",
-    "@nestjs/platform-express": "^9.4.3",
-    "@nestjs/testing": "^9.4.3",
+    "@nestjs/core": "^12.5.1",
+    "@nestjs/platform-express": "^12.5.1",
+    "@nestjs/testing": "^12.5.1",
     "@types/jest": "^26.0.20",
     "@types/lodash.get": "4.4.6",
     "@types/lodash.has": "4.5.6",

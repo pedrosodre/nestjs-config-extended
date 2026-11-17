@@ -5,8 +5,9 @@ export const DEFAULT_REDACT_KEYS: ReadonlyArray<RegExp> = [
 ];
 export const DEFAULT_REDACT_REPLACEMENT = '[REDACTED]';
 
-// Matches the password part of URLs such as postgres://user:password@host.
-const URL_CREDENTIALS = /([a-z][a-z0-9+.-]*:\/\/[^:/@\s]*:)([^@/\s]+)(@)/gi;
+// Matches the credentials of URLs such as postgres://user:password@host.
+// Anchored on "://" (no scheme pattern) so matching stays linear on any input.
+const URL_CREDENTIALS = /:\/\/([^:/@\s]*):[^@/\s]+@/g;
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
 	if (value === null || typeof value !== 'object') {
@@ -42,8 +43,7 @@ export const redactConfig = (
 			// Function replacer, so "$" patterns in a custom replacement stay literal.
 			return current.replace(
 				URL_CREDENTIALS,
-				(_match, prefix: string, _password: string, suffix: string) =>
-					`${prefix}${replacement}${suffix}`,
+				(_match, user: string) => `://${user}:${replacement}@`,
 			);
 		}
 

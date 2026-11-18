@@ -12,6 +12,7 @@ import {
 } from './interfaces';
 import * as cron from 'node-cron';
 import { retrieveVariablesByStrategy } from './util/loader.util';
+import { copyConfigEntries } from './util/clone.util';
 import { getConfigToken } from './config-namespace';
 import { createConfigProxy } from './util/config-proxy.util';
 
@@ -64,7 +65,7 @@ export class ExtendedConfigModule {
 				preLoadedResults.push(
 					strategy.disable
 						? undefined
-						: { ...(await retrieveVariablesByStrategy(strategy)) },
+						: copyConfigEntries(await retrieveVariablesByStrategy(strategy)),
 				);
 			}
 		}

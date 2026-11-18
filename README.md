@@ -321,6 +321,8 @@ try {
 }
 ```
 
+Configuration values must be plain data: circular values and values nested more than 100 levels deep are rejected with a `LoadingException` for that strategy, and its previous result is kept.
+
 ### Typed configuration
 
 Pass your configuration type to the service to get autocompleted dotted paths and inferred return types (up to 5 levels deep). With a [schema](#schema-validation), use `InferConfig<typeof schema>`.

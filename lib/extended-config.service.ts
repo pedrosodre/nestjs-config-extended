@@ -49,7 +49,7 @@ import {
 import { retrieveVariablesByStrategy } from './util/loader.util';
 import { isUndefined } from './util/is-undefined.util';
 import { isDeepEqual } from './util/deep-equal.util';
-import { parseDuration } from './util/duration.util';
+import { MAX_TIMER_DELAY, parseDuration } from './util/duration.util';
 import { cloneConfigValue, copyConfigEntries } from './util/clone.util';
 import { createConfigProxy } from './util/config-proxy.util';
 import { redactConfig } from './util/redact.util';
@@ -328,7 +328,7 @@ export class ExtendedConfigService<
 			const interval = parseDuration(reloadInterval);
 			if (interval === undefined) {
 				throw new InvalidReloadIntervalException(
-					`"${reloadInterval}" is not a positive duration (e.g. 30000, "30s", "5m")`,
+					`"${reloadInterval}" is not a positive duration of at most ${MAX_TIMER_DELAY} ms (e.g. 30000, "30s", "5m")`,
 					identifier,
 				);
 			}

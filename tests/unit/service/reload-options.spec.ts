@@ -36,6 +36,11 @@ describe('parseDuration', () => {
 		['0s', undefined],
 		['10', undefined],
 		['5 minutes', undefined],
+		// Node timers clamp delays above 2^31 - 1 ms to 1 ms.
+		['24d', 2073600000],
+		[2147483647, 2147483647],
+		[2147483648, undefined],
+		['25d', undefined],
 	])('parseDuration(%p) === %p', (input, expected) => {
 		expect(parseDuration(input)).toBe(expected);
 	});
@@ -80,6 +85,14 @@ describe('reloadInterval', () => {
 		await service.load();
 		expect(setIntervalSpy).not.toHaveBeenCalled();
 		setIntervalSpy.mockRestore();
+	});
+
+	it('should reject intervals longer than the Node timer limit', async () => {
+		await expect(
+			createService([
+				{ loader: () => ({}), reloadable: true, reloadInterval: '30d' },
+			]).load(),
+		).rejects.toThrow('at most 2147483647 ms');
 	});
 
 	it('should reject invalid intervals and schedule + interval together', async () => {
@@ -137,6 +150,27 @@ describe('retry', () => {
 
 		expect(loader).toHaveBeenCalledTimes(4);
 		expect(timeoutSpy.mock.calls.map(call => call[1])).toEqual([2, 5, 5]);
+		timeoutSpy.mockRestore();
+	});
+
+	it('should cap retry delays at the Node timer limit', async () => {
+		const timeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation(((
+			callback: () => void,
+		) => {
+			callback();
+			return 0;
+		}) as any);
+		const loader = jest
+			.fn()
+			.mockRejectedValueOnce(new Error('down'))
+			.mockResolvedValueOnce({ KEY: 'ok' });
+
+		await retrieveVariablesByStrategy({
+			loader,
+			retry: { retries: 1, delay: 3_000_000_000 },
+		});
+
+		expect(timeoutSpy.mock.calls.map(call => call[1])).toEqual([2147483647]);
 		timeoutSpy.mockRestore();
 	});
 

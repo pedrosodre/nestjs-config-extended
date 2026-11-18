@@ -1,3 +1,9 @@
+/**
+ * Longest delay Node timers support (2^31 - 1 ms, about 24.8 days). Longer
+ * delays are silently clamped to 1 ms by setTimeout/setInterval.
+ */
+export const MAX_TIMER_DELAY = 2 ** 31 - 1;
+
 const UNITS: Record<string, number> = {
 	ms: 1,
 	s: 1000,
@@ -8,11 +14,12 @@ const UNITS: Record<string, number> = {
 
 /**
  * Parses a duration in milliseconds (number) or as a string like "500ms",
- * "30s", "5m", "1h" or "1d". Returns undefined when invalid or not positive.
+ * "30s", "5m", "1h" or "1d". Returns undefined when invalid, not positive or
+ * longer than MAX_TIMER_DELAY.
  */
 export const parseDuration = (value: number | string): number | undefined => {
 	if (typeof value === 'number') {
-		return Number.isFinite(value) && value > 0 ? value : undefined;
+		return isTimerDelay(value) ? value : undefined;
 	}
 
 	const match = /^\s*(\d+(?:\.\d+)?)\s*(ms|s|m|h|d)\s*$/.exec(value);
@@ -21,5 +28,8 @@ export const parseDuration = (value: number | string): number | undefined => {
 	}
 
 	const duration = Number(match[1]) * UNITS[match[2]];
-	return duration > 0 ? duration : undefined;
+	return isTimerDelay(duration) ? duration : undefined;
 };
+
+const isTimerDelay = (value: number): boolean =>
+	Number.isFinite(value) && value > 0 && value <= MAX_TIMER_DELAY;

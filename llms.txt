@@ -38,7 +38,7 @@ export class AppModule {}
 - `options`: passed to the loader. `disable`: skip the strategy.
 - `registerAs`: store the whole result under this key (requires the default `cache: true`).
 - `validator` (returns boolean), `transformer` (returns object), `schema` (Standard Schema: Zod 3.24+, Valibot 1+, ArkType 2+; its output replaces the variables).
-- `reloadable`, plus either `schedule` (cron, with `scheduleTimezone`) or `reloadInterval` (ms or '30s', '5m', '1h').
+- `reloadable`, plus either `schedule` (cron, with `scheduleTimezone`) or `reloadInterval` (ms or '30s', '5m', '1h'; at most 2147483647 ms, Node's timer limit).
 - `retry: { retries, delay = 1000, factor = 2, maxDelay = 30000 }` for failing loaders.
 
 ## Module options

@@ -1,3 +1,4 @@
+import { MAX_TIMER_DELAY } from './duration.util';
 import {
 	ConfigLoaderStrategy,
 	LoaderClass,
@@ -87,8 +88,11 @@ export const parseVariablesWithSchema = async (
 	return value as Record<string, any>;
 };
 
+// Capped so a huge delay is not clamped to 1 ms by Node's timer limit.
 const sleep = (ms: number) =>
-	new Promise<void>(resolve => setTimeout(resolve, ms));
+	new Promise<void>(resolve =>
+		setTimeout(resolve, Math.min(ms, MAX_TIMER_DELAY)),
+	);
 
 const callLoader = async (
 	strategy: ConfigLoaderStrategy,

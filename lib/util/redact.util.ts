@@ -5,9 +5,11 @@ export const DEFAULT_REDACT_KEYS: ReadonlyArray<RegExp> = [
 ];
 export const DEFAULT_REDACT_REPLACEMENT = '[REDACTED]';
 
-// Matches the credentials of URLs such as postgres://user:password@host.
-// Anchored on "://" (no scheme pattern) so matching stays linear on any input.
-const URL_CREDENTIALS = /:\/\/([^:/@\s]*):[^@/\s]+@/g;
+// Matches the credentials of URLs such as postgres://user:p@ss@host. The
+// password runs to the last "@" of the authority (which ends at "/", "?", "#"
+// or whitespace), like WHATWG URL parsing. Anchored on "://" and bounded by
+// those delimiters, so matching stays linear on any input.
+const URL_CREDENTIALS = /:\/\/([^:/@\s]*):[^/?#\s]*@/g;
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
 	if (value === null || typeof value !== 'object') {

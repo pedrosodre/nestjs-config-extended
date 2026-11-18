@@ -52,6 +52,22 @@ describe('redactConfig', () => {
 		});
 	});
 
+	it('should mask the whole password when it contains an unencoded @', () => {
+		// WHATWG URL parsing ends the credentials at the last @ of the authority.
+		expect(new URL('postgres://app:p@ss@db:5432/x').password).toBe('p%40ss');
+		expect(
+			redactConfig({
+				A: 'postgres://app:DUMMY@SECRET@db.internal:5432/app',
+				B: 'http://u:p@h/path?next=a@b#c@d',
+				C: 'http://u:p@h?q=1@2',
+			}),
+		).toEqual({
+			A: 'postgres://app:[REDACTED]@db.internal:5432/app',
+			B: 'http://u:[REDACTED]@h/path?next=a@b#c@d',
+			C: 'http://u:[REDACTED]@h?q=1@2',
+		});
+	});
+
 	it('should redact long strings in linear time', () => {
 		const inputs = [
 			'a'.repeat(200_000),

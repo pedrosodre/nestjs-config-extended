@@ -1,3 +1,5 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
 import { join } from 'path';
 import { jsonFileLoader, yamlFileLoader } from '../../../lib';
 import { retrieveVariablesByStrategy } from '../../../lib/util/loader.util';
@@ -60,6 +62,45 @@ describe('[Strategy] YAML file', () => {
 	it('should return an empty object for an empty file', () => {
 		expect(yamlFileLoader({ path: fixture('empty.yaml') })).toEqual({});
 	});
+
+	it.each([
+		[
+			'a nested compact mapping',
+			'db:\n  password: DUMMY-SECRET-1: oops\n',
+			'DUMMY-SECRET-1',
+			'Invalid YAML at line 2 (BLOCK_AS_IMPLICIT_KEY)',
+		],
+		[
+			'a duplicated key',
+			'apiToken: DUMMY-SECRET-2\napiToken: DUMMY-SECRET-2\n',
+			'DUMMY-SECRET-2',
+			'Invalid YAML at line 2 (DUPLICATE_KEY)',
+		],
+	])(
+		'should not quote file content in parse errors (%s)',
+		async (_case, content, secret, code) => {
+			// Invalid YAML is written at runtime so formatters never parse it.
+			const dir = mkdtempSync(join(tmpdir(), 'yaml-loader-'));
+			const file = join(dir, 'invalid.yaml');
+			writeFileSync(file, content);
+
+			try {
+				expect(() => yamlFileLoader({ path: file })).toThrow(code);
+
+				// The message ends up in getStatus().lastError, health output and logs.
+				const error = await retrieveVariablesByStrategy({
+					identifier: 'yaml',
+					loader: yamlFileLoader,
+					options: { path: file },
+				}).catch(err => err as Error);
+				expect(error).toBeInstanceOf(Error);
+				expect((error as Error).message).toContain(code);
+				expect((error as Error).message).not.toContain(secret);
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+	);
 
 	it('should explain how to install yaml when it is missing', () => {
 		jest.isolateModules(() => {

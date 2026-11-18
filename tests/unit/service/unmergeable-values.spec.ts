@@ -43,7 +43,7 @@ describe('Unmergeable configuration values', () => {
 	it('should accept values up to the maximum depth and reject deeper ones', async () => {
 		await expect(
 			createService([
-				{ loader: () => ({ a: nested(MAX_CONFIG_DEPTH - 1) }) },
+				{ loader: () => ({ a: nested(MAX_CONFIG_DEPTH) }) },
 			]).load(),
 		).resolves.toBeUndefined();
 

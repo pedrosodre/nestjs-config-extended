@@ -39,8 +39,10 @@ import {
 	ExtendedConfigModuleOptions,
 } from './interfaces';
 import {
+	ExtendedConfigException,
 	InvalidReloadIntervalException,
 	InvalidScheduleException,
+	LoadingException,
 	MissingConfigException,
 	ProcessEnvAssignmentException,
 } from './exceptions';
@@ -115,7 +117,13 @@ export class ExtendedConfigService<
 					this.markSuccess(index);
 				}
 			});
-			this.applyResults();
+			try {
+				this.applyResults();
+			} catch (err) {
+				throw err instanceof ExtendedConfigException
+					? err
+					: new LoadingException(err as Error);
+			}
 			this.isLoaded = true;
 
 			this.configureSchedulerOnPreload();
@@ -540,8 +548,19 @@ export class ExtendedConfigService<
 				this.toProcessEnvValues(strategy, loadedVariables);
 			}
 
+			const previous = this.results[index];
 			this.results[index] = copyConfigEntries(loadedVariables);
-			this.applyResults(identifier);
+			try {
+				this.applyResults(identifier);
+			} catch (err) {
+				// A result that cannot be merged (for example a circular or too deeply
+				// nested value) must not stay stored, or every later rebuild would fail
+				// too and block reloads of the other strategies.
+				this.results[index] = previous;
+				throw err instanceof ExtendedConfigException
+					? err
+					: new LoadingException(err as Error, identifier);
+			}
 		} else {
 			this.debug(NOT_LOADED_STRATEGY_DISABLED, identifier);
 		}
@@ -578,8 +597,9 @@ export class ExtendedConfigService<
 					this.assignVariables(next, strategy, variables);
 				}
 			});
-			this.cache = next;
-			this.notifyChanges(next, identifier);
+			this.notifyChanges(next, identifier, () => {
+				this.cache = next;
+			});
 			return;
 		}
 
@@ -593,31 +613,38 @@ export class ExtendedConfigService<
 			}
 		});
 
-		const written = new Set(Object.keys(envValues));
-		for (const key of written) {
-			process.env[key] = envValues[key];
-		}
-
-		for (const key of this.processEnvKeys) {
-			if (!written.has(key)) {
-				delete process.env[key];
+		this.notifyChanges(envValues, identifier, () => {
+			const written = new Set(Object.keys(envValues));
+			for (const key of written) {
+				process.env[key] = envValues[key];
 			}
-		}
-		this.processEnvKeys = written;
-		this.notifyChanges(envValues, identifier);
+
+			for (const key of this.processEnvKeys) {
+				if (!written.has(key)) {
+					delete process.env[key];
+				}
+			}
+			this.processEnvKeys = written;
+		});
 	}
 
+	/**
+	 * Detects changed keys, then commits the new configuration (commit) and
+	 * publishes the change. Nothing is committed if detection throws.
+	 */
 	private notifyChanges(
 		next: Record<string, any>,
-		identifier?: string | symbol,
+		identifier: string | symbol | undefined,
+		commit: () => void,
 	): void {
 		const previous = this.current;
-		this.current = next;
-
 		const keys = new Set([...Object.keys(previous), ...Object.keys(next)]);
 		const changedKeys = [...keys].filter(
 			key => !isDeepEqual(previous[key], next[key]),
 		);
+
+		commit();
+		this.current = next;
 
 		if (!changedKeys.length) {
 			return;

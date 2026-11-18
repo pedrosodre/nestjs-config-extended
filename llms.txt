@@ -28,6 +28,7 @@ export class AppModule {}
 ```
 
 - Strategies run in order; later strategies override earlier keys. Each strategy runs `loader → validator → transformer → schema`.
+- Values must be plain data: circular or more than 100 levels deep is rejected (`LoadingException`); a failed load or reload keeps the strategy's previous result.
 - `forRootAsync({ imports, inject, useFactory })` builds the options with dependency injection.
 - `preload: true` (forRoot only) loads before providers are created.
 

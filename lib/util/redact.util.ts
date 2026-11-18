@@ -54,6 +54,8 @@ export const redactConfig = (
 		if (isPlainObject(current)) {
 			const copy: Record<string, unknown> = {};
 			for (const key of Object.keys(current)) {
+				// Assigning an own "__proto__" key would replace the copy's prototype.
+				if (key === '__proto__') continue;
 				copy[key] = matchesKey(key, patterns)
 					? replacement
 					: redact(current[key]);

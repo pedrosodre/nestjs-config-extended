@@ -87,6 +87,15 @@ it('should keep $ patterns in a custom replacement literal', () => {
 	).toEqual({ DATABASE_URL: 'postgres://user:$&@db/app' });
 });
 
+it('should drop own __proto__ keys from redacted copies', () => {
+	const redacted = redactConfig(
+		JSON.parse('{"db":{"__proto__":{"password":"s"},"host":"h"}}'),
+	);
+	expect(Object.getPrototypeOf(redacted.db)).toBe(Object.prototype);
+	expect(redacted).toEqual({ db: { host: 'h' } });
+	expect(redacted.db.password).toBeUndefined();
+});
+
 describe('ExtendedConfigService redaction', () => {
 	const createService = (redact?: any) =>
 		new ExtendedConfigService<any>(
@@ -100,6 +109,38 @@ describe('ExtendedConfigService redaction', () => {
 			{ validate: jest.fn(), schedule: jest.fn() } as any,
 			new Logger(),
 		);
+
+	it('should keep masking when a config object has an own __proto__ key', async () => {
+		const service = new ExtendedConfigService<any>(
+			{
+				strategies: [
+					{
+						loader: () =>
+							JSON.parse(
+								'{"db":{"__proto__":{"isAdmin":true},"password":"p"},"svc":{"token":"t"}}',
+							),
+					},
+					{
+						loader: () => JSON.parse('{"__proto__":{"x":1},"token":"t2"}'),
+						registerAs: 'app',
+					},
+				],
+			},
+			{ validate: jest.fn(), schedule: jest.fn() } as any,
+			new Logger(),
+		);
+		await service.load();
+
+		expect(service.toJSON()).toEqual({
+			db: { password: '[REDACTED]' },
+			svc: { token: '[REDACTED]' },
+			app: { token: '[REDACTED]' },
+		});
+		expect(inspect(service)).not.toMatch(/'p'|'t2'/);
+		expect(service.get('db.isAdmin')).toBeUndefined();
+		expect(service.has('db.isAdmin')).toBe(false);
+		expect(service.get('app.x')).toBeUndefined();
+	});
 
 	it('toJSON(), JSON.stringify and util.inspect should mask secrets', async () => {
 		const service = createService();

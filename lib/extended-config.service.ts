@@ -48,7 +48,7 @@ import { retrieveVariablesByStrategy } from './util/loader.util';
 import { isUndefined } from './util/is-undefined.util';
 import { isDeepEqual } from './util/deep-equal.util';
 import { parseDuration } from './util/duration.util';
-import { cloneConfigValue } from './util/clone.util';
+import { cloneConfigValue, copyConfigEntries } from './util/clone.util';
 import { createConfigProxy } from './util/config-proxy.util';
 import { redactConfig } from './util/redact.util';
 
@@ -540,7 +540,7 @@ export class ExtendedConfigService<
 				this.toProcessEnvValues(strategy, loadedVariables);
 			}
 
-			this.results[index] = { ...loadedVariables };
+			this.results[index] = copyConfigEntries(loadedVariables);
 			this.applyResults(identifier);
 		} else {
 			this.debug(NOT_LOADED_STRATEGY_DISABLED, identifier);

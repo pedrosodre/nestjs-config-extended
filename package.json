@@ -81,7 +81,7 @@
     "@arethetypeswrong/cli": "0.18.5",
     "@commitlint/cli": "20.5.3",
     "@commitlint/config-conventional": "20.5.3",
-    "@eslint/js": "9.39.5",
+    "@eslint/js": "10.0.1",
     "@microsoft/api-extractor": "7.60.1",
     "@nestjs/common": "11.2.8",
     "@nestjs/core": "11.2.8",

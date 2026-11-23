@@ -86,7 +86,7 @@
     "@nestjs/common": "11.2.8",
     "@nestjs/core": "11.2.8",
     "@nestjs/platform-express": "11.2.10",
-    "@nestjs/testing": "11.2.8",
+    "@nestjs/testing": "12.4.1",
     "@types/jest": "29.5.14",
     "@types/lodash.get": "4.4.9",
     "@types/lodash.has": "4.5.9",
